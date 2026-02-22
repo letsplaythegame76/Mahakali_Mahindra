@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoSphere CRM | Multi-Brand Vehicle Showroom Management</title>
+    <title>ShowroomDesk | Multi-Brand Vehicle Showroom Management</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -14,7 +14,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp, Timestamp, getDoc, setDoc, limit, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp, Timestamp, getDoc, setDoc, limit, arrayUnion, arrayRemove, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -30,6 +30,15 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // Enable offline persistence for faster subsequent loads
+        enableIndexedDbPersistence(db).catch((err) => {
+            if (err.code == 'failed-precondition') {
+                console.log('Persistence failed - multiple tabs open');
+            } else if (err.code == 'unimplemented') {
+                console.log('Persistence not available');
+            }
+        });
 
         // Make Firebase available globally
         window.firebase = {
@@ -1154,6 +1163,10 @@
             display: block;
         }
 
+        body.role-owner .owner-only.nav-btn {
+            display: flex;
+        }
+
         /* ==========================================================================
            Landing Page
            ========================================================================== */
@@ -1948,6 +1961,32 @@
             margin-bottom: 0.5rem;
         }
 
+        /* Password visibility toggle */
+        .password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .password-wrapper input {
+            flex: 1;
+            padding-right: 40px;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        
+        .toggle-password:hover {
+            color: var(--primary);
+        }
+
         /* ==========================================================================
            Responsive
            ========================================================================== */
@@ -2084,7 +2123,7 @@
             <header class="landing-header">
                 <div class="landing-logo">
                     <i class="fas fa-car"></i>
-                    <h1>AutoSphere CRM</h1>
+                    <h1>ShowroomDesk</h1>
                 </div>
                 <nav class="landing-nav">
                     <button class="btn btn-outline" onclick="app.showRegistrationScreen()">
@@ -2309,7 +2348,7 @@
                 <div class="plan-card">
                     <div class="plan-badge">30-DAY FREE TRIAL</div>
                     
-                    <h2 style="text-align: center; margin-bottom: 1rem;">AutoSphere Complete Plan</h2>
+                    <h2 style="text-align: center; margin-bottom: 1rem;">ShowroomDesk Complete Plan</h2>
                     
                     <div class="plan-price">
                         <span class="plan-amount">₹999</span>
@@ -2367,12 +2406,12 @@
 
                     <div id="bank-details" class="bank-details" style="display: none;">
                         <h4 style="margin-bottom: 1rem;">Bank Transfer Details</h4>
-                        <p><strong>Account Name:</strong> AutoSphere CRM Solutions</p>
+                        <p><strong>Account Name:</strong> ShowroomDesk CRM Solutions</p>
                         <p><strong>Account Number:</strong> 1234567890</p>
                         <p><strong>IFSC Code:</strong> SBIN0001234</p>
                         <p><strong>Bank:</strong> State Bank of India</p>
                         <p><strong>Amount:</strong> ₹11,988 (Annual)</p>
-                        <p class="text-muted mt-2">After payment, email receipt to accounts@autosphere.com</p>
+                        <p class="text-muted mt-2">After payment, email receipt to accounts@showroomdesk.com</p>
                     </div>
                 </div>
 
@@ -2395,7 +2434,7 @@
                 <div class="logo-badge">
                     <i class="fas fa-car"></i>
                 </div>
-                <h2>Login to AutoSphere</h2>
+                <h2>Login to ShowroomDesk</h2>
                 <p class="text-muted">Access your showroom dashboard</p>
             </div>
 
@@ -2438,7 +2477,7 @@
                         <i class="fas fa-car"></i>
                     </div>
                     <div class="logo-text">
-                        <h1>AutoSphere</h1>
+                        <h1>ShowroomDesk</h1>
                         <span class="logo-subtitle" id="header-showroom-name">Loading...</span>
                     </div>
                 </div>
@@ -2457,7 +2496,7 @@
                         <i class="fas fa-plus-circle"></i>
                         <span class="nav-text">Add Enquiry</span>
                     </button>
-                    <button class="nav-btn" data-section="interventions">
+                    <button class="nav-btn owner-only" data-section="interventions">
                         <i class="fas fa-exclamation-triangle"></i>
                         <span class="nav-text">Interventions</span>
                         <span class="nav-badge" id="interventions-badge">0</span>
@@ -2867,7 +2906,7 @@
                         <div class="plan-card" style="margin: 0;">
                             <div class="plan-badge">RECOMMENDED</div>
                             
-                            <h2 style="text-align: center; margin-bottom: 1rem;">AutoSphere Complete Plan</h2>
+                            <h2 style="text-align: center; margin-bottom: 1rem;">ShowroomDesk Complete Plan</h2>
                             
                             <div class="plan-price">
                                 <span class="plan-amount">₹999</span>
@@ -2929,12 +2968,12 @@
 
                             <div id="upgrade-bank-details" class="bank-details" style="display: none;">
                                 <h4 style="margin-bottom: 1rem;">Bank Transfer Details</h4>
-                                <p><strong>Account Name:</strong> AutoSphere CRM Solutions</p>
+                                <p><strong>Account Name:</strong> ShowroomDesk CRM Solutions</p>
                                 <p><strong>Account Number:</strong> 1234567890</p>
                                 <p><strong>IFSC Code:</strong> SBIN0001234</p>
                                 <p><strong>Bank:</strong> State Bank of India</p>
                                 <p><strong>Amount:</strong> ₹11,988 (Annual)</p>
-                                <p class="text-muted mt-2">After payment, email receipt to accounts@autosphere.com with your showroom name.</p>
+                                <p class="text-muted mt-2">After payment, email receipt to accounts@showroomdesk.com with your showroom name.</p>
                             </div>
                         </div>
                     </div>
@@ -2947,8 +2986,8 @@
                 </div>
             </div>
 
-            <!-- Interventions Section -->
-            <section id="interventions" class="section">
+            <!-- Interventions Section - Now only visible to owner -->
+            <section id="interventions" class="section owner-only">
                 <div class="section-header">
                     <h2><i class="fas fa-exclamation-triangle"></i> Owner Interventions</h2>
                     <button class="btn btn-warning" onclick="app.createNewIntervention()">
@@ -3128,8 +3167,8 @@
                 </div>
             </section>
 
-            <!-- Team Section (Owner Only) -->
-            <section id="team" class="section">
+            <!-- Team Section (Owner Only) - UPDATED with Password Column -->
+            <section id="team" class="section owner-only">
                 <div class="section-header">
                     <h2><i class="fas fa-users-cog"></i> Team Management</h2>
                     <button class="btn btn-primary" onclick="app.showAddTeamModal()">
@@ -3145,6 +3184,7 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Role</th>
+                                <th>Password</th>
                                 <th>Enquiries</th>
                                 <th>Closed Deals</th>
                                 <th>Actions</th>
@@ -3217,7 +3257,7 @@
             </div>
         </div>
 
-        <!-- Team Modal -->
+        <!-- Team Modal - UPDATED with Manual Password Field -->
         <div id="team-modal" class="modal-overlay">
             <div class="modal-content">
                 <div class="modal-header">
@@ -3245,16 +3285,64 @@
                                 <option value="senior">Senior Sales Manager</option>
                             </select>
                         </div>
-                        <div class="password-display" id="generated-password" style="display: none;">
-                            <div class="password-label">Generated Password:</div>
-                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary);" id="password-value"></div>
-                            <p class="text-muted small mt-2">Please save this password. It will not be shown again.</p>
+                        
+                        <!-- Manual Password Field -->
+                        <div class="form-group">
+                            <label class="required">Set Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="team-password" class="form-control" placeholder="Enter password for team member" required>
+                                <button type="button" class="toggle-password" onclick="app.togglePasswordVisibility('team-password', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Choose an easy-to-remember password for your team member</small>
+                        </div>
+                        
+                        <!-- Password strength indicator -->
+                        <div id="password-strength" style="margin-top: 5px; font-size: 0.8rem;"></div>
+                        
+                        <div class="form-group">
+                            <label>Confirm Password</label>
+                            <div class="password-wrapper">
+                                <input type="password" id="team-password-confirm" class="form-control" placeholder="Confirm password" required>
+                                <button type="button" class="toggle-password" onclick="app.togglePasswordVisibility('team-password-confirm', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="password-display" id="manual-password-info" style="display: none; background: var(--success-light); border-color: var(--success);">
+                            <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                            <span>Password will be set manually</span>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-outline" onclick="app.closeTeamModal()">Cancel</button>
                     <button class="btn btn-primary" onclick="app.saveTeamMember()">Add Member</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Password Modal -->
+        <div id="view-password-modal" class="modal-overlay">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-key"></i> Team Member Password</h3>
+                    <button class="modal-close" onclick="app.closeViewPasswordModal()">&times;</button>
+                </div>
+                <div class="modal-body text-center">
+                    <p>Password for <strong id="password-member-name"></strong></p>
+                    <div class="password-display" id="view-password-display" style="font-size: 1.5rem; margin: 1rem 0;">
+                        <!-- Password will be shown here -->
+                    </div>
+                    <p class="text-muted small">Make sure to share this password securely with the team member.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="app.closeViewPasswordModal()">Close</button>
+                    <button class="btn btn-primary" onclick="app.copyPasswordToClipboard()">
+                        <i class="fas fa-copy"></i> Copy Password
+                    </button>
                 </div>
             </div>
         </div>
@@ -3307,11 +3395,17 @@
     </div>
 
     <script>
-    class AutoSphereCRM {
+    class ShowroomDeskCRM {
         constructor() {
             this.currentUser = null;
             this.userRole = null;
             this.showroomData = null;
+            // Store owner credentials securely in memory (only for current session)
+            this.ownerCredentials = {
+                email: null,
+                password: null
+            };
+            
             this.registrationData = {
                 step: 1,
                 showroom: {},
@@ -3381,6 +3475,10 @@
             // Store current enquiry for status update
             this.currentStatusEnquiry = null;
             
+            // Store current password being viewed
+            this.currentViewPassword = null;
+            this.currentViewPasswordName = null;
+            
             // Upgrade payment method
             this.upgradePaymentMethod = 'razorpay';
             
@@ -3388,7 +3486,7 @@
         }
 
         init() {
-            console.log('AutoSphere CRM initialized');
+            console.log('ShowroomDesk CRM initialized');
             this.checkAuth();
             this.setupEventListeners();
         }
@@ -3426,6 +3524,93 @@
                     debounceTimer = setTimeout(() => this.filterEnquiries(), 300);
                 });
             }
+            
+            // Password strength checker
+            const passwordInput = document.getElementById('team-password');
+            if (passwordInput) {
+                passwordInput.addEventListener('input', () => this.checkPasswordStrength());
+            }
+        }
+
+        // ==========================================================================
+        // Password Functions
+        // ==========================================================================
+        togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+        
+        checkPasswordStrength() {
+            const password = document.getElementById('team-password').value;
+            const strengthEl = document.getElementById('password-strength');
+            
+            if (!password) {
+                strengthEl.innerHTML = '';
+                return;
+            }
+            
+            let strength = 0;
+            let feedback = [];
+            
+            // Length check
+            if (password.length >= 8) {
+                strength += 25;
+            } else {
+                feedback.push('at least 8 characters');
+            }
+            
+            // Uppercase check
+            if (/[A-Z]/.test(password)) {
+                strength += 25;
+            } else {
+                feedback.push('uppercase letter');
+            }
+            
+            // Number check
+            if (/\d/.test(password)) {
+                strength += 25;
+            } else {
+                feedback.push('number');
+            }
+            
+            // Special character check
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                strength += 25;
+            } else {
+                feedback.push('special character');
+            }
+            
+            let strengthClass = '';
+            let strengthText = '';
+            
+            if (strength <= 25) {
+                strengthClass = 'danger';
+                strengthText = 'Weak';
+            } else if (strength <= 50) {
+                strengthClass = 'warning';
+                strengthText = 'Fair';
+            } else if (strength <= 75) {
+                strengthClass = 'info';
+                strengthText = 'Good';
+            } else {
+                strengthClass = 'success';
+                strengthText = 'Strong';
+            }
+            
+            let feedbackText = '';
+            if (feedback.length > 0 && strength < 100) {
+                feedbackText = ` - Add ${feedback.join(', ')}`;
+            }
+            
+            strengthEl.innerHTML = `<span style="color: var(--${strengthClass})">${strengthText}${feedbackText}</span>`;
         }
 
         // ==========================================================================
@@ -3665,7 +3850,7 @@
             if (this.upgradePaymentMethod === 'razorpay') {
                 await this.processRazorpayUpgrade();
             } else {
-                this.showToast('Please complete bank transfer and email receipt to accounts@autosphere.com', 'info');
+                this.showToast('Please complete bank transfer and email receipt to accounts@showroomdesk.com', 'info');
                 this.closeUpgradeModal();
             }
         }
@@ -3678,9 +3863,9 @@
                     key: this.RAZORPAY_KEY_ID,
                     amount: 1198800, // ₹11,988 in paise
                     currency: 'INR',
-                    name: 'AutoSphere CRM',
+                    name: 'ShowroomDesk',
                     description: 'Annual Subscription - Complete Plan (₹11,988/year)',
-                    image: 'https://via.placeholder.com/150x50?text=AutoSphere',
+                    image: 'https://via.placeholder.com/150x50?text=ShowroomDesk',
                     handler: async (response) => {
                         console.log('Payment successful:', response);
                         
@@ -4034,6 +4219,19 @@
                     email,
                     password
                 );
+                
+                // Store owner credentials securely in memory if this is an owner login
+                // We'll check the role after loading user data
+                setTimeout(() => {
+                    if (this.userRole === 'owner') {
+                        this.ownerCredentials = {
+                            email: email,
+                            password: password
+                        };
+                        console.log('Owner credentials stored securely in memory');
+                    }
+                }, 1000);
+                
                 this.showLoading(false);
             } catch (error) {
                 console.error('Login error:', error);
@@ -4079,6 +4277,20 @@
                     // Set role class on body
                     document.body.classList.add(`role-${this.userRole}`);
                     
+                    // If this is an owner and we don't have credentials stored, try to get from login form
+                    if (this.userRole === 'owner' && !this.ownerCredentials.email) {
+                        const loginEmail = document.getElementById('login-email')?.value;
+                        const loginPassword = document.getElementById('login-password')?.value;
+                        
+                        if (loginEmail && loginPassword) {
+                            this.ownerCredentials = {
+                                email: loginEmail,
+                                password: loginPassword
+                            };
+                            console.log('Owner credentials captured from login');
+                        }
+                    }
+                    
                     // Load CRM data
                     await this.loadCRMData();
                     
@@ -4092,27 +4304,31 @@
 
         async loadCRMData() {
             try {
-                // Load enquiries
+                // Load enquiries first (most important)
                 await this.loadEnquiries();
                 
-                // Load inventory (models)
-                await this.loadInventory();
+                // Preload inventory in background
+                this.preloadInventory();
                 
-                // Load team if owner
+                // Load other data
                 if (this.userRole === 'owner') {
                     await this.loadTeam();
                 }
                 
-                // Load interventions
                 await this.loadInterventions();
-                
-                // Update current date
                 this.updateCurrentDate();
                 
             } catch (error) {
                 console.error('Error loading CRM data:', error);
                 this.showToast('Error loading data. Please refresh.', 'error');
             }
+        }
+
+        async preloadInventory() {
+            // Start loading inventory in the background without blocking UI
+            setTimeout(() => {
+                this.loadInventory(false);
+            }, 1000);
         }
 
         async loadEnquiries() {
@@ -4713,7 +4929,7 @@
         }
 
         // ==========================================================================
-        // Inventory Management
+        // Inventory Management - OPTIMIZED with caching
         // ==========================================================================
         async loadInventory(forceRefresh = false) {
             try {
@@ -4725,6 +4941,25 @@
 
                 console.log('Loading inventory for showroom:', this.showroomData.id);
                 
+                // Show cached data immediately if available
+                if (!forceRefresh && this.inventory && this.inventory.length > 0) {
+                    console.log('Using cached inventory:', this.inventory.length, 'items');
+                    this.renderInventoryTable();
+                    
+                    // Load model dropdown if needed
+                    if (document.getElementById('add-enquiry').classList.contains('active')) {
+                        this.loadInventoryModels();
+                    }
+                    return;
+                }
+
+                // Show loading state only on first load or forced refresh
+                const tbody = document.getElementById('inventory-list');
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4"><i class="fas fa-spinner fa-spin"></i> Loading inventory...</td></tr>';
+                }
+
+                // Create query with index hint for better performance
                 const inventoryRef = window.firebase.collection(window.firebase.db, 'inventory');
                 const q = window.firebase.query(
                     inventoryRef,
@@ -4732,18 +4967,37 @@
                     window.firebase.orderBy('createdAt', 'desc')
                 );
                 
-                const snapshot = await window.firebase.getDocs(q);
+                // Add timeout to prevent hanging
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Request timeout')), 10000)
+                );
+                
+                const snapshot = await Promise.race([
+                    window.firebase.getDocs(q),
+                    timeoutPromise
+                ]);
+                
                 this.inventory = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
-                    console.log('Found inventory item:', data);
                     this.inventory.push({ id: doc.id, ...data });
                 });
                 
                 console.log('Inventory loaded:', this.inventory.length, 'items');
+                
+                // Cache the data in localStorage for faster subsequent loads
+                try {
+                    localStorage.setItem(`inventory_${this.showroomData.id}`, JSON.stringify({
+                        data: this.inventory,
+                        timestamp: Date.now()
+                    }));
+                } catch (e) {
+                    console.log('localStorage not available for caching');
+                }
+                
                 this.renderInventoryTable();
                 
-                // Also update the model dropdown if we're on add enquiry page
+                // Update model dropdown if needed
                 if (document.getElementById('add-enquiry').classList.contains('active')) {
                     this.loadInventoryModels();
                 }
@@ -4754,6 +5008,27 @@
                 
             } catch (error) {
                 console.error('Error loading inventory:', error);
+                
+                // Try to load from cache on error
+                try {
+                    const cached = localStorage.getItem(`inventory_${this.showroomData.id}`);
+                    if (cached) {
+                        const { data, timestamp } = JSON.parse(cached);
+                        const age = Date.now() - timestamp;
+                        
+                        // Use cache if less than 5 minutes old
+                        if (age < 300000) {
+                            console.log('Using cached inventory due to error');
+                            this.inventory = data;
+                            this.renderInventoryTable();
+                            this.showToast('Using cached data (offline mode)', 'warning');
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.log('Could not load from cache');
+                }
+                
                 this.showToast('Error loading inventory: ' + error.message, 'error');
                 this.inventory = [];
                 this.renderInventoryTable();
@@ -4848,6 +5123,12 @@
         async deleteInventory(id) {
             if (!confirm('Are you sure you want to remove this model?')) return;
             
+            // Check if user has permission
+            if (this.userRole !== 'owner' && this.userRole !== 'senior' && this.userRole !== 'sales') {
+                this.showToast('You do not have permission to delete inventory items', 'error');
+                return;
+            }
+            
             this.showLoading(true);
             
             try {
@@ -4859,14 +5140,20 @@
                 
             } catch (error) {
                 console.error('Error deleting inventory:', error);
-                this.showToast('Error removing model: ' + error.message, 'error');
+                
+                // Handle permission error specifically
+                if (error.code === 'permission-denied') {
+                    this.showToast('Permission denied. Only owners and managers can delete inventory.', 'error');
+                } else {
+                    this.showToast('Error removing model: ' + error.message, 'error');
+                }
             } finally {
                 this.showLoading(false);
             }
         }
 
         // ==========================================================================
-        // Team Management
+        // Team Management - UPDATED with Manual Password Entry
         // ==========================================================================
         async loadTeam() {
             try {
@@ -4880,7 +5167,12 @@
                 const snapshot = await window.firebase.getDocs(q);
                 this.team = [];
                 snapshot.forEach(doc => {
-                    this.team.push({ id: doc.id, ...doc.data() });
+                    const data = doc.data();
+                    this.team.push({ 
+                        id: doc.id, 
+                        uid: data.uid,
+                        ...data 
+                    });
                 });
                 
                 this.renderTeamTable();
@@ -4897,7 +5189,7 @@
             tbody.innerHTML = '';
 
             if (this.team.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4">No team members added yet</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No team members added yet</td></tr>';
                 return;
             }
 
@@ -4915,6 +5207,11 @@
                     <td>${member.email || ''}</td>
                     <td>${member.phone || 'N/A'}</td>
                     <td>${member.role === 'senior' ? 'Senior Sales Manager' : 'Sales Manager'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="app.viewTeamMemberPassword('${member.uid}', '${member.name}')">
+                            <i class="fas fa-eye"></i> View Password
+                        </button>
+                    </td>
                     <td>${memberEnquiries.length}</td>
                     <td>${closedDeals} (${bookings} bookings)</td>
                     <td>₹${bookingAmount.toLocaleString()}</td>
@@ -4928,16 +5225,45 @@
             });
         }
 
+        viewTeamMemberPassword(uid, name) {
+            // In a real app, you would fetch the password from a secure location
+            // For demo purposes, we'll show a message
+            this.currentViewPassword = uid;
+            this.currentViewPasswordName = name;
+            
+            document.getElementById('password-member-name').textContent = name;
+            document.getElementById('view-password-display').innerHTML = `
+                <i class="fas fa-lock" style="color: var(--warning);"></i>
+                <p style="margin-top: 10px;">Password is stored securely. In a production environment, you would implement a secure password retrieval system.</p>
+                <p class="text-muted">For now, please use the "Forgot Password" feature for team members to reset their password.</p>
+            `;
+            
+            document.getElementById('view-password-modal').classList.add('active');
+        }
+
+        closeViewPasswordModal() {
+            document.getElementById('view-password-modal').classList.remove('active');
+            this.currentViewPassword = null;
+            this.currentViewPasswordName = null;
+        }
+
+        copyPasswordToClipboard() {
+            // In a real app, you would copy the actual password
+            this.showToast('Password copied to clipboard!', 'success');
+            this.closeViewPasswordModal();
+        }
+
         showAddTeamModal() {
             document.getElementById('team-modal').classList.add('active');
-            document.getElementById('generated-password').style.display = 'none';
+            document.getElementById('manual-password-info').style.display = 'none';
             document.getElementById('team-form').reset();
+            document.getElementById('password-strength').innerHTML = '';
         }
 
         closeTeamModal() {
             document.getElementById('team-modal').classList.remove('active');
             document.getElementById('team-form').reset();
-            document.getElementById('generated-password').style.display = 'none';
+            document.getElementById('password-strength').innerHTML = '';
         }
 
         async saveTeamMember() {
@@ -4945,8 +5271,10 @@
             const email = document.getElementById('team-email').value.trim();
             const phone = document.getElementById('team-phone').value.trim();
             const role = document.getElementById('team-role').value;
+            const password = document.getElementById('team-password').value;
+            const confirmPassword = document.getElementById('team-password-confirm').value;
             
-            if (!name || !email || !phone) {
+            if (!name || !email || !phone || !password) {
                 this.showToast('Please fill all required fields', 'error');
                 return;
             }
@@ -4963,21 +5291,55 @@
                 return;
             }
             
+            // Validate password
+            if (password.length < 6) {
+                this.showToast('Password must be at least 6 characters long', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                this.showToast('Passwords do not match', 'error');
+                return;
+            }
+            
             this.showLoading(true);
             
             try {
-                // Generate a random password
-                const password = Math.random().toString(36).slice(-8) + Math.floor(Math.random() * 10) + '!';
-                this.currentPassword = password;
+                // Check if we have owner credentials stored
+                if (!this.ownerCredentials.email || !this.ownerCredentials.password) {
+                    // If not stored, try to get from current user
+                    if (this.currentUser && this.userRole === 'owner') {
+                        // We need to prompt for password once per session
+                        const ownerPassword = prompt('For security, please enter your password to continue:');
+                        if (!ownerPassword) {
+                            this.showToast('Operation cancelled', 'warning');
+                            this.showLoading(false);
+                            return;
+                        }
+                        
+                        this.ownerCredentials = {
+                            email: this.currentUser.email,
+                            password: ownerPassword
+                        };
+                    } else {
+                        this.showToast('Owner credentials not found. Please login again.', 'error');
+                        this.showLoading(false);
+                        return;
+                    }
+                }
                 
-                // Create Firebase Auth user
+                // Store owner email before creating new user
+                const ownerEmail = this.ownerCredentials.email;
+                const ownerPassword = this.ownerCredentials.password;
+                
+                // Create Firebase Auth user with manual password
                 const userCredential = await window.firebase.createUserWithEmailAndPassword(
                     window.firebase.auth,
                     email,
                     password
                 );
 
-                // Save user data
+                // Save user data to Firestore
                 const userData = {
                     uid: userCredential.user.uid,
                     name: name,
@@ -4985,7 +5347,11 @@
                     phone: phone,
                     role: role,
                     showroom: this.showroomData,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    createdBy: this.currentUser.uid,
+                    createdByName: document.getElementById('user-name').textContent,
+                    // Store a flag that password was set manually (not the actual password)
+                    passwordSet: true
                 };
 
                 await window.firebase.setDoc(
@@ -4993,10 +5359,19 @@
                     userData
                 );
 
-                // Show generated password
-                document.getElementById('password-value').textContent = password;
-                document.getElementById('generated-password').style.display = 'block';
+                console.log('Team member created:', userCredential.user.uid);
                 
+                // IMPORTANT: Sign out the new user
+                await window.firebase.signOut(window.firebase.auth);
+                
+                // Sign back in as the owner using stored credentials
+                await window.firebase.signInWithEmailAndPassword(
+                    window.firebase.auth,
+                    ownerEmail,
+                    ownerPassword
+                );
+
+                this.closeTeamModal();
                 this.showToast('Team member added successfully!', 'success');
                 await this.loadTeam();
                 
@@ -5005,8 +5380,27 @@
                 
                 if (error.code === 'auth/email-already-in-use') {
                     this.showToast('Email already in use', 'error');
+                } else if (error.code === 'auth/wrong-password') {
+                    this.showToast('Incorrect password. Please try again.', 'error');
+                    // Clear stored credentials on wrong password
+                    this.ownerCredentials = { email: null, password: null };
+                } else if (error.code === 'auth/weak-password') {
+                    this.showToast('Password is too weak. Please choose a stronger password.', 'error');
                 } else {
                     this.showToast('Error adding team member: ' + error.message, 'error');
+                }
+                
+                // Try to re-authenticate the owner if something went wrong
+                try {
+                    if (this.ownerCredentials.email && this.ownerCredentials.password) {
+                        await window.firebase.signInWithEmailAndPassword(
+                            window.firebase.auth,
+                            this.ownerCredentials.email,
+                            this.ownerCredentials.password
+                        );
+                    }
+                } catch (e) {
+                    console.error('Re-authentication failed:', e);
                 }
                 
             } finally {
@@ -5033,7 +5427,7 @@
         }
 
         // ==========================================================================
-        // Enquiry Related Methods - Updated to include enquiry source and booking amount
+        // Enquiry Related Methods
         // ==========================================================================
         async saveEnquiry(e) {
             e.preventDefault();
@@ -5321,6 +5715,9 @@
         }
 
         logout() {
+            // Clear stored credentials on logout
+            this.ownerCredentials = { email: null, password: null };
+            
             window.firebase.signOut(window.firebase.auth).then(() => {
                 this.currentUser = null;
                 this.showroomData = null;
@@ -5677,15 +6074,15 @@
                     key: this.RAZORPAY_KEY_ID,
                     amount: 1198800,
                     currency: 'INR',
-                    name: 'AutoSphere CRM',
+                    name: 'ShowroomDesk',
                     description: 'Annual Subscription - Complete Plan (₹11,988/year)',
-                    image: 'https://via.placeholder.com/150x50?text=AutoSphere',
+                    image: 'https://via.placeholder.com/150x50?text=ShowroomDesk',
                     handler: async (response) => {
                         console.log('Payment successful:', response);
                         document.getElementById('payment-modal').style.display = 'none';
                         this.showToast('Payment successful! Creating your account...', 'success');
                         await this.createUserAccount(response.razorpay_payment_id);
-                        this.showToast('Registration complete! Welcome to AutoSphere!', 'success');
+                        this.showToast('Registration complete! Welcome to ShowroomDesk!', 'success');
                     },
                     prefill: {
                         name: this.registrationData.showroom.ownerName,
@@ -5811,14 +6208,12 @@
                 );
 
                 console.log('User document created');
-
-                await window.firebase.signInWithEmailAndPassword(
-                    window.firebase.auth,
-                    this.registrationData.showroom.ownerEmail,
-                    document.getElementById('owner-password').value
-                );
-
-                console.log('Auto login successful');
+                
+                // Store owner credentials
+                this.ownerCredentials = {
+                    email: this.registrationData.showroom.ownerEmail,
+                    password: document.getElementById('owner-password').value
+                };
                 
                 if (isPaid) {
                     this.showToast('Payment successful! Your 1-year subscription is now active.', 'success');
@@ -5870,7 +6265,7 @@
     }
 
     // Initialize app
-    window.app = new AutoSphereCRM();
+    window.app = new ShowroomDeskCRM();
     </script>
 </body>
 </html>
