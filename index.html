@@ -2353,7 +2353,7 @@
                     <div class="plan-price">
                         <span class="plan-amount">₹999</span>
                         <span class="plan-period">/month</span>
-                        <div class="plan-saving">Billed annually at ₹11,988 (Save ₹1,200)</div>
+                        <div class="plan-saving">Billed annually at ₹10,999 (Save ₹1,989)</div>
                     </div>
 
                     <div class="plan-features">
@@ -2410,7 +2410,7 @@
                         <p><strong>Account Number:</strong> 1234567890</p>
                         <p><strong>IFSC Code:</strong> SBIN0001234</p>
                         <p><strong>Bank:</strong> State Bank of India</p>
-                        <p><strong>Amount:</strong> ₹11,988 (Annual)</p>
+                        <p><strong>Amount:</strong> ₹10,999 (Annual)</p>
                         <p class="text-muted mt-2">After payment, email receipt to accounts@showroomdesk.com</p>
                     </div>
                 </div>
@@ -2911,7 +2911,7 @@
                             <div class="plan-price">
                                 <span class="plan-amount">₹999</span>
                                 <span class="plan-period">/month</span>
-                                <div class="plan-saving">Billed annually at ₹11,988 (Save ₹1,200)</div>
+                                <div class="plan-saving">Billed annually at ₹10,999 (Save ₹1,989)</div>
                             </div>
 
                             <div class="plan-features">
@@ -2972,7 +2972,7 @@
                                 <p><strong>Account Number:</strong> 1234567890</p>
                                 <p><strong>IFSC Code:</strong> SBIN0001234</p>
                                 <p><strong>Bank:</strong> State Bank of India</p>
-                                <p><strong>Amount:</strong> ₹11,988 (Annual)</p>
+                                <p><strong>Amount:</strong> ₹10,999 (Annual)</p>
                                 <p class="text-muted mt-2">After payment, email receipt to accounts@showroomdesk.com with your showroom name.</p>
                             </div>
                         </div>
@@ -2980,7 +2980,7 @@
                     <div class="modal-footer">
                         <button class="btn btn-outline" onclick="app.closeUpgradeModal()">Cancel</button>
                         <button class="btn btn-primary btn-lg" onclick="app.processUpgrade()" id="upgrade-btn">
-                            <i class="fas fa-crown"></i> Upgrade Now - ₹11,988/year
+                            <i class="fas fa-crown"></i> Upgrade Now - ₹10,999/year
                         </button>
                     </div>
                 </div>
@@ -3861,10 +3861,10 @@
             try {
                 const options = {
                     key: this.RAZORPAY_KEY_ID,
-                    amount: 1198800, // ₹11,988 in paise
+                    amount: 1099900, // ₹10,999 in paise
                     currency: 'INR',
                     name: 'ShowroomDesk',
-                    description: 'Annual Subscription - Complete Plan (₹11,988/year)',
+                    description: 'Annual Subscription - Complete Plan (₹10,999/year)',
                     image: 'https://via.placeholder.com/150x50?text=ShowroomDesk',
                     handler: async (response) => {
                         console.log('Payment successful:', response);
@@ -6072,10 +6072,10 @@
                 
                 const options = {
                     key: this.RAZORPAY_KEY_ID,
-                    amount: 1198800,
+                    amount: 1099900, // ₹10,999 in paise
                     currency: 'INR',
                     name: 'ShowroomDesk',
-                    description: 'Annual Subscription - Complete Plan (₹11,988/year)',
+                    description: 'Annual Subscription - Complete Plan (₹10,999/year)',
                     image: 'https://via.placeholder.com/150x50?text=ShowroomDesk',
                     handler: async (response) => {
                         console.log('Payment successful:', response);
@@ -6157,7 +6157,7 @@
                     plan: 'complete',
                     price: 999,
                     billingCycle: 'annual',
-                    amount: 11988,
+                    amount: 10999,
                     status: subscriptionStatus,
                     startDate: new Date().toISOString(),
                     endDate: endDate.toISOString(),
