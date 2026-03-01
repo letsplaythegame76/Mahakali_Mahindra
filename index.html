@@ -2792,6 +2792,14 @@
                             <option value="Field Enquiry">🌐 Field Enquiry</option>
                         </select>
                     </div>
+                    <div class="filter-group">
+                        <select id="filter-lead-type" onchange="app.filterEnquiries()">
+                            <option value="">All Lead Types</option>
+                            <option value="hot">🔥 Hot (Status: Hot)</option>
+                            <option value="warm">🟡 Warm (Follow-up within 30 days)</option>
+                            <option value="cold">❄️ Cold (Follow-up after 30+ days)</option>
+                        </select>
+                    </div>
 
                     <!-- Sales Manager Filter - Only visible to owners -->
                     <div class="filter-group owner-only" id="sales-manager-filter-container">
@@ -4583,6 +4591,7 @@
             filterEnquiries() {
                 const searchTerm = document.getElementById('enquiry-search')?.value.toLowerCase() || '';
                 const sourceFilter = document.getElementById('filter-source')?.value || '';
+                const leadTypeFilter = document.getElementById('filter-lead-type')?.value || '';
                 const salesManagerFilter = document.getElementById('filter-sales-manager')?.value || '';
 
                 this.filteredEnquiries = this.enquiries.filter(enquiry => {
@@ -4600,7 +4609,39 @@
                     const matchesManager = salesManagerFilter === '' ||
                         (this.userRole === 'owner' && enquiry.salesManagerName === salesManagerFilter);
 
-                    return matchesSearch && matchesSource && matchesManager;
+                    // NEW: Lead Type filter (Hot/Warm/Cold)
+                    let matchesLeadType = true;
+                    if (leadTypeFilter) {
+                        const today = new Date();
+
+                        if (leadTypeFilter === 'hot') {
+                            // Hot leads: status is 'hot'
+                            matchesLeadType = enquiry.status === 'hot';
+                        } else if (leadTypeFilter === 'warm') {
+                            // Warm leads: follow-up within 30 days (and not hot, not closed/lost/booking)
+                            if (enquiry.followupDate && enquiry.status !== 'closed' && enquiry.status !== 'lost' && enquiry.status !== 'booking') {
+                                const followupDate = new Date(enquiry.followupDate);
+                                const daysDiff = Math.ceil((followupDate - today) / (1000 * 60 * 60 * 24));
+                                matchesLeadType = daysDiff <= 30 && daysDiff >= 0;
+                            } else {
+                                matchesLeadType = false;
+                            }
+                        } else if (leadTypeFilter === 'cold') {
+                            // Cold leads: follow-up after 30+ days (or no follow-up date, but not hot/closed/lost/booking)
+                            if (enquiry.followupDate && enquiry.status !== 'closed' && enquiry.status !== 'lost' && enquiry.status !== 'booking') {
+                                const followupDate = new Date(enquiry.followupDate);
+                                const daysDiff = Math.ceil((followupDate - today) / (1000 * 60 * 60 * 24));
+                                matchesLeadType = daysDiff > 30;
+                            } else if (!enquiry.followupDate && enquiry.status !== 'hot' && enquiry.status !== 'closed' && enquiry.status !== 'lost' && enquiry.status !== 'booking') {
+                                // Enquiries with no follow-up date (excluding hot/closed/lost/booking)
+                                matchesLeadType = true;
+                            } else {
+                                matchesLeadType = false;
+                            }
+                        }
+                    }
+
+                    return matchesSearch && matchesSource && matchesManager && matchesLeadType;
                 });
 
                 this.renderFilteredEnquiriesTable();
@@ -4694,6 +4735,7 @@
             clearFilters() {
                 document.getElementById('enquiry-search').value = '';
                 document.getElementById('filter-source').value = '';
+                document.getElementById('filter-lead-type').value = ''; // Add this line
                 if (document.getElementById('filter-sales-manager')) {
                     document.getElementById('filter-sales-manager').value = '';
                 }
@@ -5024,10 +5066,18 @@
                     // Initialize filtered enquiries
                     this.filteredEnquiries = [...this.enquiries];
 
+                    // Update all UI components that depend on enquiries
                     this.updateDashboard();
                     this.renderEnquiriesTable();
                     this.renderTodaySchedule();
                     this.populateSalesManagerFilter();
+
+                    // Force update of interventions badge
+                    const interventionsCount = this.enquiries.filter(e => e.intervention && !e.intervention.resolved).length;
+                    document.getElementById('interventions-badge').textContent = interventionsCount;
+
+                    console.log('Enquiries loaded:', this.enquiries.length);
+                    console.log('Interventions pending:', interventionsCount);
 
                 } catch (error) {
                     console.error('Error loading enquiries:', error);
@@ -5043,15 +5093,12 @@
                     const today = new Date();
                     return followupDate.toDateString() === today.toDateString();
                 }).length;
-                const exchange = this.enquiries.filter(e => e.isExchange === true).length;
                 const booking = this.enquiries.filter(e => e.status === 'booking').length;
-                const closed = this.enquiries.filter(e => e.status === 'closed').length;
-                const conversion = total > 0 ? Math.round((closed / total) * 100) : 0;
 
+                // Update stats cards
                 document.getElementById('dashboard-total').textContent = total;
                 document.getElementById('dashboard-hot').textContent = hot;
                 document.getElementById('dashboard-today').textContent = today;
-                document.getElementById('dashboard-exchange').textContent = exchange;
                 document.getElementById('dashboard-booking').textContent = booking;
                 document.getElementById('enquiries-badge').textContent = total;
 
@@ -5074,16 +5121,16 @@
                             `${e.vehicleModel || ''}`;
 
                         html += `
-                        <div class="followup-item" onclick="app.viewEnquiry('${e.id}')">
-                            <div><strong>${e.customerName || ''}</strong> - ${vehicleInfo}</div>
-                            <div class="text-muted">${e.followupDate ? new Date(e.followupDate).toLocaleTimeString() : ''}</div>
-                        </div>
-                    `;
+                <div class="followup-item" onclick="app.viewEnquiry('${e.id}')">
+                    <div><strong>${e.customerName || ''}</strong> - ${vehicleInfo}</div>
+                    <div class="text-muted">${e.followupDate ? new Date(e.followupDate).toLocaleTimeString() : ''}</div>
+                </div>
+            `;
                     });
                     todayFollowups.innerHTML = html;
                 }
 
-                // Pending interventions
+                // Pending interventions - FIXED: Properly filter interventions
                 const pendingInterventions = document.getElementById('pending-interventions');
                 const interventions = this.enquiries.filter(e => e.intervention && !e.intervention.resolved).slice(0, 5);
 
@@ -5093,23 +5140,23 @@
                     let html = '';
                     interventions.forEach(e => {
                         html += `
-                        <div class="intervention-item" onclick="app.viewEnquiry('${e.id}')">
-                            <div class="intervention-header">
-                                <span class="intervention-customer">${e.customerName || ''}</span>
-                                <span class="intervention-priority priority-${e.intervention?.priority || 'medium'}">${(e.intervention?.priority || 'medium').toUpperCase()}</span>
-                            </div>
-                            <div class="intervention-message">${e.intervention?.message || ''}</div>
-                            <div class="intervention-meta">
-                                <span>By: ${e.intervention?.createdBy || 'Owner'}</span>
-                                <span>Deadline: ${e.intervention?.deadline ? new Date(e.intervention.deadline).toLocaleDateString() : 'Not set'}</span>
-                            </div>
-                        </div>
-                    `;
+                <div class="intervention-item" onclick="app.viewEnquiry('${e.id}')">
+                    <div class="intervention-header">
+                        <span class="intervention-customer">${e.customerName || ''}</span>
+                        <span class="intervention-priority priority-${e.intervention?.priority || 'medium'}">${(e.intervention?.priority || 'medium').toUpperCase()}</span>
+                    </div>
+                    <div class="intervention-message">${e.intervention?.message || ''}</div>
+                    <div class="intervention-meta">
+                        <span>By: ${e.intervention?.createdBy || 'Owner'}</span>
+                        <span>Deadline: ${e.intervention?.deadline ? new Date(e.intervention.deadline).toLocaleDateString() : 'Not set'}</span>
+                    </div>
+                </div>
+            `;
                     });
                     pendingInterventions.innerHTML = html;
                 }
 
-                // Vehicle stats
+                // Vehicle-wise Enquiries - FIXED: Show actual data
                 const vehicleStats = document.getElementById('vehicle-stats');
                 const saleCount = this.enquiries.filter(e => !e.isExchange).length;
                 const exchangeCount = this.enquiries.filter(e => e.isExchange === true).length;
@@ -5118,9 +5165,19 @@
                     vehicleStats.innerHTML = '<div class="text-center text-muted py-4">No data available</div>';
                 } else {
                     vehicleStats.innerHTML = `
-                    <div class="stat-item">New Vehicle Sales: ${saleCount} (${Math.round(saleCount / total * 100)}%)</div>
-                    <div class="stat-item">Exchange Enquiries: ${exchangeCount} (${Math.round(exchangeCount / total * 100)}%)</div>
-                `;
+            <div class="stat-item">
+                <div style="display: flex; justify-content: space-between;">
+                    <span><i class="fas fa-car" style="color: var(--primary);"></i> New Vehicle Sales:</span>
+                    <span><strong>${saleCount}</strong> (${Math.round(saleCount / total * 100)}%)</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div style="display: flex; justify-content: space-between;">
+                    <span><i class="fas fa-exchange-alt" style="color: var(--exchange-color);"></i> Exchange Enquiries:</span>
+                    <span><strong>${exchangeCount}</strong> (${Math.round(exchangeCount / total * 100)}%)</span>
+                </div>
+            </div>
+        `;
                 }
 
                 // Top sales
@@ -5157,12 +5214,15 @@
                     let html = '';
                     sortedSales.forEach(s => {
                         html += `
-                        <div class="stat-item">
-                            <div><strong>${s.name}</strong></div>
-                            <div>${s.closed} closed / ${s.booking} bookings / ₹${s.bookingAmount.toLocaleString()}</div>
-                            <div>${s.rate}% conversion</div>
-                        </div>
-                    `;
+                <div class="stat-item">
+                    <div><strong>${s.name}</strong></div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>${s.closed} closed / ${s.booking} bookings</span>
+                        <span>₹${s.bookingAmount.toLocaleString()}</span>
+                    </div>
+                    <div class="progress-bar" style="width: ${s.rate}%; height: 4px; background: var(--success); margin-top: 4px;"></div>
+                </div>
+            `;
                     });
                     topSales.innerHTML = html;
                 }
@@ -5755,9 +5815,19 @@
                 });
             }
 
-            showAddInventoryModal() {
-                document.getElementById('inventory-modal').classList.add('active');
-                document.getElementById('inventory-form').reset();
+            // Replace the showAddTeamModal method with this updated version
+            showAddTeamModal() {
+                // Check if user is owner
+                if (this.userRole !== 'owner') {
+                    this.showToast('You don\'t have permission to add team members. This feature is only available to the owner.', 'error');
+                    return;
+                }
+
+                // If owner, proceed with showing the modal
+                document.getElementById('team-modal').classList.add('active');
+                document.getElementById('manual-password-info').style.display = 'none';
+                document.getElementById('team-form').reset();
+                document.getElementById('password-strength').innerHTML = '';
             }
 
             closeInventoryModal() {
