@@ -14,10 +14,11 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Firebase SDK -->
+    <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp, Timestamp, getDoc, setDoc, limit, arrayUnion, arrayRemove, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp, Timestamp, getDoc, setDoc, limit, arrayUnion, arrayRemove, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -827,6 +828,18 @@
         .btn-upgrade:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-lg);
+        }
+
+        /* ==========================================================================
+           Remarks History button
+           ========================================================================== */
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
         }
 
         /* ==========================================================================
@@ -2828,6 +2841,7 @@
                                 <th>Status</th>
                                 <th>Booking Amount</th>
                                 <th>Follow-up</th>
+                                <th>Last Update</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -2969,6 +2983,30 @@
                     <div class="modal-footer">
                         <button class="btn btn-outline" onclick="app.closeRemarksModal()">Cancel</button>
                         <button class="btn btn-primary" onclick="app.saveRemarks()">Save Remarks</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remarks History Modal - NEW -->
+            <div id="remarks-history-modal" class="modal-overlay">
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-history"></i> Remarks Change History</h3>
+                        <button class="modal-close" onclick="app.closeRemarksHistoryModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div
+                            style="margin-bottom: 1rem; padding: 0.5rem; background: var(--bg-secondary); border-radius: var(--radius);">
+                            <p><strong>Customer:</strong> <span id="history-customer-name"></span></p>
+                            <p><strong>Current Remarks:</strong> <span id="history-current-remarks"></span></p>
+                        </div>
+                        <div id="remarks-history-list" style="max-height: 400px; overflow-y: auto;">
+                            <!-- History items will be populated here -->
+                            <div class="text-center text-muted py-4">Loading history...</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-outline" onclick="app.closeRemarksHistoryModal()">Close</button>
                     </div>
                 </div>
             </div>
@@ -4057,7 +4095,7 @@
             }
 
             // ==========================================================================
-            // Edit Enquiry Functions - NEW
+            // Edit Enquiry Functions - UPDATED with history
             // ==========================================================================
             showEditEnquiryModal(enquiryId) {
                 const enquiry = this.enquiries.find(e => e.id === enquiryId);
@@ -4103,6 +4141,29 @@
                 this.toggleEditBookingFields();
 
                 document.getElementById('edit-enquiry-modal').classList.add('active');
+            }
+
+            closeEditEnquiryModal() {
+                document.getElementById('edit-enquiry-modal').classList.remove('active');
+                this.currentEditEnquiry = null;
+            }
+
+            toggleEditExchangeFields(isExchange = null) {
+                // If isExchange is not provided, get from radio buttons
+                if (isExchange === null) {
+                    isExchange = document.getElementById('edit-exchange-yes')?.checked || false;
+                }
+
+                const regularFields = document.getElementById('edit-regular-vehicle-fields');
+                const exchangeFields = document.getElementById('edit-exchange-fields');
+
+                if (isExchange) {
+                    regularFields.style.display = 'none';
+                    exchangeFields.style.display = 'block';
+                } else {
+                    regularFields.style.display = 'block';
+                    exchangeFields.style.display = 'none';
+                }
             }
 
             closeEditEnquiryModal() {
@@ -4257,6 +4318,24 @@
                     const enquiryRef = window.firebase.doc(window.firebase.db, 'enquiries', this.currentEditEnquiry.id);
                     await window.firebase.updateDoc(enquiryRef, updateData);
 
+                    // Save remarks history if remarks changed
+                    if (remarks !== this.currentEditEnquiry.remarks) {
+                        try {
+                            const historyRef = window.firebase.collection(window.firebase.db, 'enquiries', this.currentEditEnquiry.id, 'remarksHistory');
+                            await window.firebase.addDoc(historyRef, {
+                                oldRemarks: this.currentEditEnquiry.remarks || '',
+                                newRemarks: remarks,
+                                changedBy: document.getElementById('user-name').textContent,
+                                changedByUid: this.currentUser?.uid,
+                                timestamp: new Date().toISOString(),
+                                changeType: 'edit_enquiry'
+                            });
+                            console.log('Remarks history saved from edit enquiry');
+                        } catch (historyError) {
+                            console.error('Error saving remarks history:', historyError);
+                        }
+                    }
+
                     // Update local data
                     Object.assign(this.currentEditEnquiry, updateData);
 
@@ -4272,6 +4351,7 @@
                     this.showLoading(false);
                 }
             }
+
 
             // ==========================================================================
             // Status Update Functions - FIXED null error
@@ -4456,15 +4536,24 @@
             }
 
             // ==========================================================================
-            // Subscription and Upgrade Functions
+            // Subscription and Upgrade Functions - UPDATED with trial days
+            // ==========================================================================
+            // ==========================================================================
+            // Subscription and Upgrade Functions - UPDATED with trial days
             // ==========================================================================
             updateSubscriptionDisplay() {
                 const statusEl = document.getElementById('subscription-status');
                 const expiryEl = document.getElementById('subscription-expiry');
+                const upgradeBtn = document.querySelector('.btn-upgrade'); // Get the upgrade button - declare once
 
                 if (!this.showroomData || !this.showroomData.subscription) {
                     if (statusEl) statusEl.textContent = 'No subscription';
                     if (expiryEl) expiryEl.textContent = '';
+                    if (upgradeBtn) {
+                        // Store trial days as data attribute and update button text
+                        upgradeBtn.setAttribute('data-trial-days', '0');
+                        upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Upgrade Plan';
+                    }
                     return;
                 }
 
@@ -4472,6 +4561,23 @@
                 const endDate = new Date(sub.endDate);
                 const today = new Date();
                 const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+
+                // Store days left as data attribute on the upgrade button - reuse the same variable
+                if (upgradeBtn) {
+                    upgradeBtn.setAttribute('data-trial-days', daysLeft);
+
+                    if (sub.status === 'trial') {
+                        if (daysLeft > 0) {
+                            upgradeBtn.innerHTML = `<i class="fas fa-crown"></i> Trial (${daysLeft} day${daysLeft !== 1 ? 's' : ''} left)`;
+                        } else {
+                            upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Trial Expired - Upgrade';
+                        }
+                    } else if (sub.status === 'active') {
+                        upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Active Plan';
+                    } else {
+                        upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Upgrade Plan';
+                    }
+                }
 
                 if (sub.status === 'trial') {
                     if (statusEl) statusEl.innerHTML = `<i class="fas fa-gift"></i> Trial Period - ${daysLeft} days left`;
@@ -4488,10 +4594,34 @@
                 document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
                 document.querySelector('.payment-method[data-method="razorpay"]').classList.add('selected');
                 document.getElementById('upgrade-bank-details').style.display = 'none';
+
+                // Add trial info to modal if applicable
+                const upgradeBtn = document.querySelector('.btn-upgrade');
+                const trialDays = upgradeBtn ? parseInt(upgradeBtn.getAttribute('data-trial-days')) || 0 : 0;
+                const modalHeader = document.querySelector('#upgrade-modal .modal-header h3');
+
+                if (this.showroomData?.subscription?.status === 'trial' && trialDays > 0) {
+                    // Add a small badge next to the title
+                    const badge = document.createElement('span');
+                    badge.className = 'status-badge status-new';
+                    badge.style.marginLeft = '10px';
+                    badge.style.fontSize = '0.8rem';
+                    badge.textContent = `${trialDays} trial days remaining`;
+
+                    // Remove existing badge if any
+                    const existingBadge = modalHeader.querySelector('.trial-badge');
+                    if (existingBadge) existingBadge.remove();
+
+                    badge.classList.add('trial-badge');
+                    modalHeader.appendChild(badge);
+                }
             }
 
             closeUpgradeModal() {
                 document.getElementById('upgrade-modal').classList.remove('active');
+                // Remove the trial badge when closing
+                const badge = document.querySelector('#upgrade-modal .modal-header .trial-badge');
+                if (badge) badge.remove();
             }
 
             selectUpgradePaymentMethod(method) {
@@ -4655,7 +4785,7 @@
                 tbody.innerHTML = '';
 
                 if (this.filteredEnquiries.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4">No enquiries match your filters</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4">No enquiries match your filters</td></tr>'; // Updated colspan
                     return;
                 }
 
@@ -4673,6 +4803,31 @@
                     let modelDisplay = enquiry.vehicleModel || 'N/A';
                     let sourceDisplay = enquiry.source || 'N/A';
                     let bookingAmountDisplay = enquiry.bookingAmount ? `₹${enquiry.bookingAmount.toLocaleString()}` : '-';
+
+                    // Last Update formatting
+                    let lastUpdateDisplay = 'N/A';
+                    if (enquiry.updatedAt) {
+                        const updateDate = new Date(enquiry.updatedAt);
+                        const now = new Date();
+                        const diffMs = now - updateDate;
+                        const diffMins = Math.floor(diffMs / 60000);
+                        const diffHours = Math.floor(diffMs / 3600000);
+                        const diffDays = Math.floor(diffMs / 86400000);
+
+                        if (diffMins < 1) {
+                            lastUpdateDisplay = 'Just now';
+                        } else if (diffMins < 60) {
+                            lastUpdateDisplay = `${diffMins} min ago`;
+                        } else if (diffHours < 24) {
+                            lastUpdateDisplay = `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+                        } else if (diffDays < 7) {
+                            lastUpdateDisplay = `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+                        } else {
+                            lastUpdateDisplay = updateDate.toLocaleDateString();
+                        }
+                    } else if (enquiry.createdAt) {
+                        lastUpdateDisplay = 'Just added';
+                    }
 
                     if (enquiry.isExchange) {
                         vehicleDisplay = 'Exchange';
@@ -4698,6 +4853,7 @@
                     <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                     <td>${bookingAmountDisplay}</td>
                     <td>${followupDate}</td>
+                    <td><span title="${enquiry.updatedAt ? new Date(enquiry.updatedAt).toLocaleString() : ''}" style="font-size: 0.8rem; color: var(--text-light);">${lastUpdateDisplay}</span></td>
                     <td>
                         <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.viewEnquiry('${enquiry.id}')">
                             <i class="fas fa-eye"></i>
@@ -4705,8 +4861,11 @@
                         <button class="btn btn-sm btn-info" onclick="event.stopPropagation(); app.showEditEnquiryModal('${enquiry.id}')">
                             <i class="fas fa-edit"></i> Edit
                         </button>
-                        <button class="btn btn-sm btn-success" onclick="event.stopPropagation(); app.showStatusUpdateModal('${enquiry.id}')">
-                            <i class="fas fa-sync-alt"></i>
+    
+                         
+                        </button>
+                        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); app.showRemarksHistory('${enquiry.id}')" title="View Remarks History">
+                            <i class="fas fa-history"></i>
                         </button>
                         ${this.userRole === 'owner' ? `
                             <button class="btn btn-sm btn-warning" onclick="event.stopPropagation(); app.addIntervention('${enquiry.id}')">
@@ -4735,7 +4894,7 @@
             clearFilters() {
                 document.getElementById('enquiry-search').value = '';
                 document.getElementById('filter-source').value = '';
-                document.getElementById('filter-lead-type').value = ''; // Add this line
+                document.getElementById('filter-lead-type').value = '';
                 if (document.getElementById('filter-sales-manager')) {
                     document.getElementById('filter-sales-manager').value = '';
                 }
@@ -4763,7 +4922,7 @@
             }
 
             // ==========================================================================
-            // Remarks Edit Functions
+            // Remarks Edit Functions - UPDATED with history
             // ==========================================================================
             editRemarks(enquiryId) {
                 const enquiry = this.enquiries.find(e => e.id === enquiryId);
@@ -4780,6 +4939,9 @@
                 this.currentRemarksEnquiry = null;
             }
 
+            // ==========================================================================
+            // Remarks Edit Functions - UPDATED with better error handling
+            // ==========================================================================
             async saveRemarks() {
                 if (!this.currentRemarksEnquiry) {
                     this.closeRemarksModal();
@@ -4787,16 +4949,51 @@
                 }
 
                 const newRemarks = document.getElementById('remarks-text').value.trim();
+                const oldRemarks = this.currentRemarksEnquiry.remarks || '';
+
+                // Don't save if no change
+                if (newRemarks === oldRemarks) {
+                    this.closeRemarksModal();
+                    this.showToast('No changes to save', 'info');
+                    return;
+                }
 
                 try {
                     const enquiryRef = window.firebase.doc(window.firebase.db, 'enquiries', this.currentRemarksEnquiry.id);
+
+                    // Update the enquiry
                     await window.firebase.updateDoc(enquiryRef, {
                         remarks: newRemarks,
                         updatedAt: new Date().toISOString()
                     });
 
+                    // Save to remarks history subcollection with retry logic
+                    try {
+                        const historyRef = window.firebase.collection(window.firebase.db, 'enquiries', this.currentRemarksEnquiry.id, 'remarksHistory');
+
+                        // First, try to create the collection by adding a document
+                        const historyData = {
+                            oldRemarks: oldRemarks,
+                            newRemarks: newRemarks,
+                            changedBy: document.getElementById('user-name').textContent,
+                            changedByUid: this.currentUser?.uid,
+                            timestamp: new Date().toISOString(),
+                            changeType: 'remarks_edit'
+                        };
+
+                        await window.firebase.addDoc(historyRef, historyData);
+                        console.log('Remarks history saved successfully');
+
+                    } catch (historyError) {
+                        console.error('Error saving remarks history:', historyError);
+
+                        // Show a warning but don't fail the main update
+                        this.showToast('Remarks updated but history could not be saved. Please check permissions.', 'warning');
+                    }
+
                     // Update local data
                     this.currentRemarksEnquiry.remarks = newRemarks;
+                    this.currentRemarksEnquiry.updatedAt = new Date().toISOString();
 
                     this.closeRemarksModal();
                     this.filterEnquiries(); // Refresh the display
@@ -4806,6 +5003,92 @@
                     console.error('Error updating remarks:', error);
                     this.showToast('Error updating remarks: ' + error.message, 'error');
                 }
+            }
+
+
+            // ==========================================================================
+            // Remarks History Functions - NEW
+            // ==========================================================================
+            // ==========================================================================
+            // Remarks History Functions - UPDATED with better error handling
+            // ==========================================================================
+            async showRemarksHistory(enquiryId) {
+                const enquiry = this.enquiries.find(e => e.id === enquiryId);
+                if (!enquiry) {
+                    this.showToast('Enquiry not found', 'error');
+                    return;
+                }
+
+                document.getElementById('history-customer-name').textContent = enquiry.customerName || 'Unknown';
+                document.getElementById('history-current-remarks').textContent = enquiry.remarks || 'No remarks';
+
+                const historyList = document.getElementById('remarks-history-list');
+                historyList.innerHTML = '<div class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin"></i> Loading history...</div>';
+
+                try {
+                    const historyRef = window.firebase.collection(window.firebase.db, 'enquiries', enquiryId, 'remarksHistory');
+
+                    // Try to get history
+                    const q = window.firebase.query(historyRef, window.firebase.orderBy('timestamp', 'desc'));
+                    const snapshot = await window.firebase.getDocs(q);
+
+                    if (snapshot.empty) {
+                        historyList.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-info-circle"></i> No remarks change history available
+                </div>
+            `;
+                    } else {
+                        let html = '';
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            const date = data.timestamp ? new Date(data.timestamp).toLocaleString() : 'Unknown date';
+                            html += `
+                    <div style="padding: 1rem; border-bottom: 1px solid var(--border-light);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-weight: 600;">${data.changedBy || 'Unknown'}</span>
+                            <span style="font-size: 0.8rem; color: var(--text-light);">${date}</span>
+                        </div>
+                        <div style="background: var(--bg-secondary); padding: 0.75rem; border-radius: var(--radius);">
+                            <div style="margin-bottom: 0.5rem;">
+                                <span style="color: var(--danger); text-decoration: line-through;">${data.oldRemarks || '(empty)'}</span>
+                            </div>
+                            <div>
+                                <span style="color: var(--success);">${data.newRemarks || '(empty)'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                        });
+                        historyList.innerHTML = html;
+                    }
+                } catch (error) {
+                    console.error('Error loading remarks history:', error);
+
+                    // Check if it's a permission error
+                    if (error.code === 'permission-denied') {
+                        historyList.innerHTML = `
+                <div class="text-center text-warning py-4">
+                    <i class="fas fa-exclamation-triangle"></i> Unable to load history due to permissions.<br>
+                    <small>Please contact your administrator to update Firestore rules.</small>
+                </div>
+            `;
+                    } else {
+                        historyList.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-info-circle"></i> No remarks change history available
+                </div>
+            `;
+                    }
+                }
+
+                document.getElementById('remarks-history-modal').classList.add('active');
+            }
+
+
+
+            closeRemarksHistoryModal() {
+                document.getElementById('remarks-history-modal').classList.remove('active');
             }
 
             // ==========================================================================
@@ -4873,6 +5156,8 @@
                     inventoryCount.textContent = `${sortedInventory.length} model(s) available`;
                 }
             }
+
+
 
             // ==========================================================================
             // Toggle exchange fields based on radio selection
@@ -5828,6 +6113,11 @@
                 document.getElementById('manual-password-info').style.display = 'none';
                 document.getElementById('team-form').reset();
                 document.getElementById('password-strength').innerHTML = '';
+            }
+
+            showAddInventoryModal() {
+                document.getElementById('inventory-modal').classList.add('active');
+                document.getElementById('inventory-form').reset();
             }
 
             closeInventoryModal() {
