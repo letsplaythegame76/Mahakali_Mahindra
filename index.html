@@ -4541,19 +4541,17 @@
             // ==========================================================================
             // Subscription and Upgrade Functions - UPDATED with trial days
             // ==========================================================================
+            // ==========================================================================
+            // Subscription and Upgrade Functions - FIXED trial days display
+            // ==========================================================================
             updateSubscriptionDisplay() {
                 const statusEl = document.getElementById('subscription-status');
                 const expiryEl = document.getElementById('subscription-expiry');
-                const upgradeBtn = document.querySelector('.btn-upgrade'); // Get the upgrade button - declare once
 
                 if (!this.showroomData || !this.showroomData.subscription) {
                     if (statusEl) statusEl.textContent = 'No subscription';
                     if (expiryEl) expiryEl.textContent = '';
-                    if (upgradeBtn) {
-                        // Store trial days as data attribute and update button text
-                        upgradeBtn.setAttribute('data-trial-days', '0');
-                        upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Upgrade Plan';
-                    }
+                    this.updateUpgradeButtonText();
                     return;
                 }
 
@@ -4562,22 +4560,8 @@
                 const today = new Date();
                 const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
 
-                // Store days left as data attribute on the upgrade button - reuse the same variable
-                if (upgradeBtn) {
-                    upgradeBtn.setAttribute('data-trial-days', daysLeft);
-
-                    if (sub.status === 'trial') {
-                        if (daysLeft > 0) {
-                            upgradeBtn.innerHTML = `<i class="fas fa-crown"></i> Trial (${daysLeft} day${daysLeft !== 1 ? 's' : ''} left)`;
-                        } else {
-                            upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Trial Expired - Upgrade';
-                        }
-                    } else if (sub.status === 'active') {
-                        upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Active Plan';
-                    } else {
-                        upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Upgrade Plan';
-                    }
-                }
+                // Update upgrade button text
+                this.updateUpgradeButtonText(sub.status, daysLeft);
 
                 if (sub.status === 'trial') {
                     if (statusEl) statusEl.innerHTML = `<i class="fas fa-gift"></i> Trial Period - ${daysLeft} days left`;
@@ -4585,6 +4569,33 @@
                 } else if (sub.status === 'active') {
                     if (statusEl) statusEl.innerHTML = `<i class="fas fa-crown" style="color: gold;"></i> Active Plan - ₹${sub.price}/month`;
                     if (expiryEl) expiryEl.textContent = `Renews on ${endDate.toLocaleDateString()}`;
+                }
+            }
+
+            // Add this new method to update upgrade button text
+            updateUpgradeButtonText(status = null, daysLeft = 0) {
+                const upgradeBtn = document.querySelector('.btn-upgrade');
+                if (!upgradeBtn) return;
+
+                if (!this.showroomData || !this.showroomData.subscription) {
+                    upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Upgrade Plan';
+                    return;
+                }
+
+                const sub = this.showroomData.subscription;
+                const actualStatus = status || sub.status;
+                const actualDaysLeft = daysLeft || Math.ceil((new Date(sub.endDate) - new Date()) / (1000 * 60 * 60 * 24));
+
+                if (actualStatus === 'trial') {
+                    if (actualDaysLeft > 0) {
+                        upgradeBtn.innerHTML = `<i class="fas fa-crown"></i> Trial (${actualDaysLeft} day${actualDaysLeft !== 1 ? 's' : ''} left)`;
+                    } else {
+                        upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Trial Expired - Upgrade';
+                    }
+                } else if (actualStatus === 'active') {
+                    upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Active Plan';
+                } else {
+                    upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Upgrade Plan';
                 }
             }
 
@@ -4596,24 +4607,28 @@
                 document.getElementById('upgrade-bank-details').style.display = 'none';
 
                 // Add trial info to modal if applicable
-                const upgradeBtn = document.querySelector('.btn-upgrade');
-                const trialDays = upgradeBtn ? parseInt(upgradeBtn.getAttribute('data-trial-days')) || 0 : 0;
-                const modalHeader = document.querySelector('#upgrade-modal .modal-header h3');
+                if (this.showroomData?.subscription?.status === 'trial') {
+                    const endDate = new Date(this.showroomData.subscription.endDate);
+                    const today = new Date();
+                    const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
 
-                if (this.showroomData?.subscription?.status === 'trial' && trialDays > 0) {
-                    // Add a small badge next to the title
-                    const badge = document.createElement('span');
-                    badge.className = 'status-badge status-new';
-                    badge.style.marginLeft = '10px';
-                    badge.style.fontSize = '0.8rem';
-                    badge.textContent = `${trialDays} trial days remaining`;
+                    if (daysLeft > 0) {
+                        const modalHeader = document.querySelector('#upgrade-modal .modal-header h3');
 
-                    // Remove existing badge if any
-                    const existingBadge = modalHeader.querySelector('.trial-badge');
-                    if (existingBadge) existingBadge.remove();
+                        // Add a small badge next to the title
+                        const badge = document.createElement('span');
+                        badge.className = 'status-badge status-new';
+                        badge.style.marginLeft = '10px';
+                        badge.style.fontSize = '0.8rem';
+                        badge.textContent = `${daysLeft} trial days remaining`;
 
-                    badge.classList.add('trial-badge');
-                    modalHeader.appendChild(badge);
+                        // Remove existing badge if any
+                        const existingBadge = modalHeader.querySelector('.trial-badge');
+                        if (existingBadge) existingBadge.remove();
+
+                        badge.classList.add('trial-badge');
+                        modalHeader.appendChild(badge);
+                    }
                 }
             }
 
@@ -5582,24 +5597,37 @@
                     const row = document.createElement('tr');
                     row.onclick = () => this.viewEnquiry(enquiry.id);
 
+                    // Get assigned person name
+                    let assignedToName = 'Unassigned';
+                    if (enquiry.intervention?.assignedTo) {
+                        const assignedMember = this.team.find(m => m.uid === enquiry.intervention.assignedTo);
+                        assignedToName = assignedMember ? assignedMember.name : 'Unknown';
+                    }
+
+                    // Get assigner name (created by)
+                    const assignerName = enquiry.intervention?.createdBy || 'Owner';
+
                     row.innerHTML = `
-                    <td>${enquiry.customerName || ''}</td>
-                    <td><span class="intervention-priority priority-${enquiry.intervention?.priority || 'medium'}">${(enquiry.intervention?.priority || 'medium').toUpperCase()}</span></td>
-                    <td>${enquiry.intervention?.message || ''}</td>
-                    <td>${enquiry.salesManagerName || 'Unassigned'}</td>
-                    <td>${enquiry.intervention?.deadline ? new Date(enquiry.intervention.deadline).toLocaleDateString() : 'Not set'}</td>
-                    <td><span class="status-badge ${enquiry.intervention?.resolved ? 'status-closed' : 'status-intervention'}">${enquiry.intervention?.resolved ? 'Resolved' : 'Pending'}</span></td>
-                    <td>
-                        ${!enquiry.intervention?.resolved ? `
-                            <button class="btn btn-sm btn-success" onclick="event.stopPropagation(); app.resolveIntervention('${enquiry.id}')">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        ` : ''}
-                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.viewEnquiry('${enquiry.id}')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </td>
-                `;
+            <td>${enquiry.customerName || ''}</td>
+            <td><span class="intervention-priority priority-${enquiry.intervention?.priority || 'medium'}">${(enquiry.intervention?.priority || 'medium').toUpperCase()}</span></td>
+            <td>${enquiry.intervention?.message || ''}</td>
+            <td>
+                <span style="display: block; font-weight: 600;">Assigned to: ${assignedToName}</span>
+                <span style="display: block; font-size: 0.75rem; color: var(--text-light);">Created by: ${assignerName}</span>
+            </td>
+            <td>${enquiry.intervention?.deadline ? new Date(enquiry.intervention.deadline).toLocaleDateString() : 'Not set'}</td>
+            <td><span class="status-badge ${enquiry.intervention?.resolved ? 'status-closed' : 'status-intervention'}">${enquiry.intervention?.resolved ? 'Resolved' : 'Pending'}</span></td>
+            <td>
+                ${!enquiry.intervention?.resolved ? `
+                    <button class="btn btn-sm btn-success" onclick="event.stopPropagation(); app.resolveIntervention('${enquiry.id}')">
+                        <i class="fas fa-check"></i>
+                    </button>
+                ` : ''}
+                <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.viewEnquiry('${enquiry.id}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </td>
+        `;
                     tbody.appendChild(row);
                 });
             }
@@ -6773,7 +6801,8 @@
                             message,
                             assignedTo: assignee,
                             deadline: deadline || null,
-                            createdBy: this.currentUser.email,
+                            createdBy: this.currentUser?.email || 'Owner',
+                            createdByName: document.getElementById('user-name').textContent,
                             createdAt: new Date().toISOString(),
                             resolved: false
                         }
