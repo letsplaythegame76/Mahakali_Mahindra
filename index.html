@@ -4583,55 +4583,145 @@
             updateSubscriptionDisplay() {
                 const statusEl = document.getElementById('subscription-status');
                 const expiryEl = document.getElementById('subscription-expiry');
+                const bannerUpgradeBtn = document.querySelector('.subscription-actions .btn-upgrade'); // The button in the middle bar
 
                 if (!this.showroomData || !this.showroomData.subscription) {
                     if (statusEl) statusEl.textContent = 'No subscription';
                     if (expiryEl) expiryEl.textContent = '';
+                    if (bannerUpgradeBtn) {
+                        bannerUpgradeBtn.innerHTML = '<i class="fas fa-rocket"></i> Upgrade Now';
+                        bannerUpgradeBtn.onclick = () => this.showUpgradeModal();
+                    }
                     this.updateUpgradeButtonText();
                     return;
                 }
 
                 const sub = this.showroomData.subscription;
-                const endDate = new Date(sub.endDate);
+
+                // Handle date properly
+                let endDate;
+                if (sub.endDate) {
+                    if (sub.endDate.toDate) {
+                        endDate = sub.endDate.toDate();
+                    } else if (sub.endDate.seconds) {
+                        endDate = new Date(sub.endDate.seconds * 1000);
+                    } else {
+                        endDate = new Date(sub.endDate);
+                    }
+                } else {
+                    endDate = new Date();
+                }
+
                 const today = new Date();
                 const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
 
-                // Update upgrade button text
-                this.updateUpgradeButtonText(sub.status, daysLeft);
+                // Get payment status from subscription
+                const paymentStatus = sub.paymentStatus || 'unpaid';
+                const planType = sub.planType || 'trial';
 
-                if (sub.status === 'trial') {
+                // Update top right button
+                this.updateUpgradeButtonText(planType, daysLeft, paymentStatus);
+
+                // Update subscription banner
+                if (planType === 'trial') {
                     if (statusEl) statusEl.innerHTML = `<i class="fas fa-gift"></i> Trial Period - ${daysLeft} days left`;
                     if (expiryEl) expiryEl.textContent = `Expires on ${endDate.toLocaleDateString()}`;
-                } else if (sub.status === 'active') {
-                    if (statusEl) statusEl.innerHTML = `<i class="fas fa-crown" style="color: gold;"></i> Active Plan - ₹${sub.price}/month`;
-                    if (expiryEl) expiryEl.textContent = `Renews on ${endDate.toLocaleDateString()}`;
+                    if (bannerUpgradeBtn) {
+                        bannerUpgradeBtn.innerHTML = '<i class="fas fa-rocket"></i> Upgrade Now';
+                        bannerUpgradeBtn.onclick = () => this.showUpgradeModal();
+                    }
+                } else if (planType === 'paid') {
+                    if (paymentStatus === 'paid') {
+                        // Fully paid active plan
+                        if (statusEl) statusEl.innerHTML = `<i class="fas fa-crown" style="color: gold;"></i> Active Plan - ₹${sub.price || 999}/month`;
+                        if (expiryEl) expiryEl.textContent = `Renews on ${endDate.toLocaleDateString()}`;
+
+                        // Update banner button based on days left
+                        if (bannerUpgradeBtn) {
+                            if (daysLeft <= 10) {
+                                // Less than 10 days left - show Renew button
+                                bannerUpgradeBtn.innerHTML = `<i class="fas fa-sync-alt"></i> Renew Now (${daysLeft} days left)`;
+                                bannerUpgradeBtn.style.background = '#f59e0b';
+                                bannerUpgradeBtn.onclick = () => this.showRenewModal();
+                            } else {
+                                // More than 10 days left - HIDE the button or change to non-clickable
+                                bannerUpgradeBtn.style.display = 'none'; // Hide it completely
+                                // OR if you want to keep it visible but non-clickable:
+                                // bannerUpgradeBtn.innerHTML = '<i class="fas fa-check"></i> Active';
+                                // bannerUpgradeBtn.style.background = '#10b981';
+                                // bannerUpgradeBtn.style.cursor = 'default';
+                                // bannerUpgradeBtn.onclick = null;
+                            }
+                        }
+                    } else {
+                        // Active plan but payment pending
+                        if (statusEl) statusEl.innerHTML = `<i class="fas fa-clock" style="color: #f59e0b;"></i> Payment Pending - Plan Ready`;
+                        if (expiryEl) expiryEl.textContent = `Valid from ${new Date(sub.startDate).toLocaleDateString()}`;
+                        if (bannerUpgradeBtn) {
+                            bannerUpgradeBtn.innerHTML = '<i class="fas fa-clock"></i> Payment Pending';
+                            bannerUpgradeBtn.style.background = '#f59e0b';
+                            bannerUpgradeBtn.style.cursor = 'default';
+                            bannerUpgradeBtn.onclick = null;
+                        }
+                    }
                 }
             }
 
             // Add this new method to update upgrade button text
-            updateUpgradeButtonText(status = null, daysLeft = 0) {
+            updateUpgradeButtonText(planType = null, daysLeft = 0, paymentStatus = null) {
                 const upgradeBtn = document.querySelector('.btn-upgrade');
                 if (!upgradeBtn) return;
 
                 if (!this.showroomData || !this.showroomData.subscription) {
                     upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Upgrade Plan';
+                    upgradeBtn.onclick = () => this.showUpgradeModal();
                     return;
                 }
 
                 const sub = this.showroomData.subscription;
-                const actualStatus = status || sub.status;
+                const actualPlanType = planType || sub.planType || 'trial';
                 const actualDaysLeft = daysLeft || Math.ceil((new Date(sub.endDate) - new Date()) / (1000 * 60 * 60 * 24));
+                const actualPaymentStatus = paymentStatus || sub.paymentStatus || 'unpaid';
 
-                if (actualStatus === 'trial') {
+                // Reset button styles
+                upgradeBtn.style.background = '';
+                upgradeBtn.style.cursor = 'pointer';
+
+                if (actualPlanType === 'trial') {
+                    // TRIAL USER - Show upgrade button
                     if (actualDaysLeft > 0) {
-                        upgradeBtn.innerHTML = `<i class="fas fa-crown"></i> Trial (${actualDaysLeft} day${actualDaysLeft !== 1 ? 's' : ''} left)`;
+                        upgradeBtn.innerHTML = `<i class="fas fa-crown"></i> Upgrade Plan (${actualDaysLeft} day${actualDaysLeft !== 1 ? 's' : ''} left)`;
                     } else {
-                        upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Trial Expired - Upgrade';
+                        upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Trial Expired - Upgrade Now';
                     }
-                } else if (actualStatus === 'active') {
-                    upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Active Plan';
+                    upgradeBtn.onclick = () => this.showUpgradeModal();
+
+                } else if (actualPlanType === 'paid') {
+                    if (actualPaymentStatus === 'paid') {
+                        // PAID USER - Check if renewal is approaching (10 days or less)
+                        if (actualDaysLeft <= 10) {
+                            // 10 days or less left - SHOW RENEW BUTTON
+                            upgradeBtn.innerHTML = `<i class="fas fa-sync-alt"></i> Renew Plan (${actualDaysLeft} day${actualDaysLeft !== 1 ? 's' : ''} left)`;
+                            upgradeBtn.style.background = '#f59e0b'; // Orange for renewal
+                            upgradeBtn.onclick = () => this.showRenewModal();
+                        } else {
+                            // More than 10 days left - Show Active Plan (no button)
+                            upgradeBtn.innerHTML = '<i class="fas fa-crown" style="color: gold;"></i> Active Plan';
+                            upgradeBtn.style.background = '#10b981'; // Green
+                            upgradeBtn.style.cursor = 'default';
+                            upgradeBtn.onclick = null;
+                        }
+                    } else {
+                        // PAID PLAN BUT UNPAID - Show payment pending
+                        upgradeBtn.innerHTML = '<i class="fas fa-clock"></i> Payment Pending';
+                        upgradeBtn.style.background = '#f59e0b'; // Orange
+                        upgradeBtn.style.cursor = 'default';
+                        upgradeBtn.onclick = null;
+                    }
                 } else {
+                    // FALLBACK
                     upgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Upgrade Plan';
+                    upgradeBtn.onclick = () => this.showUpgradeModal();
                 }
             }
 
@@ -4665,6 +4755,14 @@
                         badge.classList.add('trial-badge');
                         modalHeader.appendChild(badge);
                     }
+                }
+            }
+
+            showRenewModal() {
+                // You can customize this based on your needs
+                if (confirm('Your plan is expiring soon. Would you like to renew now for ₹10,999/year?')) {
+                    // Redirect to payment or show upgrade modal
+                    this.showUpgradeModal();
                 }
             }
 
@@ -5315,6 +5413,7 @@
                 });
             }
 
+            // In your main app (showroomdesk.in) - UPDATE THIS FUNCTION
             async loadUserData(user) {
                 try {
                     // Force token refresh to ensure proper permissions
@@ -5336,7 +5435,23 @@
                         }
 
                         this.userRole = userData.role;
-                        this.showroomData = userData.showroom;
+
+                        // MODIFIED: Combine showroom data with subscription data
+                        this.showroomData = {
+                            ...userData.showroom,
+                            // Add root level fields
+                            planType: userData.planType,
+                            paymentStatus: userData.paymentStatus,
+                            subscriptionStartDate: userData.subscriptionStartDate,
+                            subscriptionEndDate: userData.subscriptionEndDate,
+                            // Add the FULL subscription object
+                            subscription: userData.subscription || {
+                                status: 'trial',
+                                planType: 'trial',
+                                paymentStatus: 'unpaid',
+                                paymentMethod: 'trial'
+                            }
+                        };
 
                         // Store user data in localStorage for backup (optional)
                         try {
