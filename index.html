@@ -2650,6 +2650,11 @@
                         <i class="fas fa-calendar-day"></i>
                         <span class="nav-text">Today</span>
                     </button>
+                    <button class="nav-btn owner-only" data-section="today-hold">
+                        <i class="fas fa-clock"></i>
+                        <span class="nav-text">Today's Hold</span>
+                        <span class="nav-badge" id="today-hold-badge">0</span>
+                    </button>
                 </nav>
 
                 <div class="header-right">
@@ -3488,6 +3493,31 @@
                     </table>
                 </div>
             </section>
+            <!-- Today's Hold Section - Shows enquiries with changed follow-up dates -->
+            <section id="today-hold" class="section owner-only">
+                <div class="section-header">
+                    <h2><i class="fas fa-clock"></i> Today's Hold</h2>
+                    <div class="date-picker" id="hold-date"></div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Customer</th>
+                                <th>Phone</th>
+                                <th>Original Date</th>
+                                <th>New Date</th>
+                                <th>Changed By</th>
+                                <th>Changed At</th>
+                                <th>Reason</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="today-hold-list"></tbody>
+                    </table>
+                </div>
+            </section>
         </main>
 
         <!-- Inventory Modal -->
@@ -3783,6 +3813,8 @@
                 this.inventory = [];
                 this.team = [];
                 this.currentPassword = '';
+                // ADD THIS LINE HERE - after existing array initializations
+                this.followupChanges = []; // Track follow-up date changes
 
                 // Store filtered enquiries for search/filter
                 this.filteredEnquiries = [];
@@ -4112,9 +4144,10 @@
                     this.populateSalesManagerFilter();
                 } else if (sectionId === 'today') {
                     this.loadTodaySchedule();
+                } else if (sectionId === 'today-hold' && this.userRole === 'owner') {
+                    this.loadTodayHold(); // Refresh Today's Hold when opened
                 }
             }
-
             // ==========================================================================
             // Booking Functions
             // ==========================================================================
@@ -4285,9 +4318,13 @@
 
                 const isExchange = document.getElementById('edit-exchange-yes')?.checked || false;
                 const status = document.getElementById('edit-status').value;
-                const followupDate = document.getElementById('edit-followup').value;
+                const newFollowupDate = document.getElementById('edit-followup').value;
+                const oldFollowupDate = this.currentEditEnquiry.followupDate;
                 const remarks = document.getElementById('edit-remarks').value.trim();
                 const bookingAmount = document.getElementById('edit-booking-amount').value;
+
+                // Check if follow-up date was changed
+                const isFollowupChanged = newFollowupDate !== oldFollowupDate;
 
                 // Validate booking amount if status is booking
                 if (status === 'booking' && !bookingAmount) {
@@ -4299,7 +4336,7 @@
                 const updateData = {
                     isExchange: isExchange,
                     status: status,
-                    followupDate: followupDate,
+                    followupDate: newFollowupDate,
                     remarks: remarks,
                     updatedAt: new Date().toISOString()
                 };
@@ -4327,12 +4364,9 @@
 
                     if (selectedModel && selectedModel !== "manual" && selectedModel !== "") {
                         updateData.vehicleModel = selectedModel;
-
-                        // Extract type from the selected option if available
                         const selectedOption = Array.from(document.querySelectorAll('#edit-enquiry-model option')).find(
                             opt => opt.value === selectedModel
                         );
-
                         if (selectedOption && selectedOption.dataset) {
                             updateData.vehicleType = selectedOption.dataset.type || 'unknown';
                             updateData.vehicleBrand = selectedOption.dataset.brand || '';
@@ -4366,10 +4400,24 @@
                                 timestamp: new Date().toISOString(),
                                 changeType: 'edit_enquiry'
                             });
-                            console.log('Remarks history saved from edit enquiry');
                         } catch (historyError) {
                             console.error('Error saving remarks history:', historyError);
                         }
+                    }
+
+                    // Track follow-up date change separately for Today's Hold
+                    // In saveEditEnquiry method, after tracking the follow-up change
+                    if (isFollowupChanged && oldFollowupDate) {
+                        await this.trackFollowupChange(
+                            this.currentEditEnquiry.id,
+                            this.currentEditEnquiry.customerName,
+                            this.currentEditEnquiry.phone,
+                            oldFollowupDate,
+                            newFollowupDate,
+                            remarks || 'No reason provided'
+                        );
+                        // Add this line to refresh Today's Hold display
+                        await this.loadTodayHold();
                     }
 
                     // Update local data
@@ -4378,6 +4426,7 @@
                     this.closeEditEnquiryModal();
                     this.filterEnquiries(); // Refresh the display
                     this.updateDashboard();
+                    this.renderTodayHold(); // Refresh Today's Hold section
                     this.showToast('Enquiry updated successfully!', 'success');
 
                 } catch (error) {
@@ -4385,6 +4434,51 @@
                     this.showToast('Error updating enquiry: ' + error.message, 'error');
                 } finally {
                     this.showLoading(false);
+                }
+            }
+
+
+            async trackFollowupChange(enquiryId, customerName, phone, oldDate, newDate, reason) {
+                console.log('Tracking follow-up change:', {
+                    enquiryId, customerName, phone, oldDate, newDate, reason
+                });
+
+                try {
+                    const changeData = {
+                        enquiryId: enquiryId,
+                        customerName: customerName,
+                        phone: phone,
+                        oldFollowupDate: oldDate,
+                        newFollowupDate: newDate,
+                        changedBy: document.getElementById('user-name').textContent,
+                        changedByUid: this.currentUser?.uid,
+                        changedByRole: this.userRole,
+                        changedAt: new Date().toISOString(),
+                        reason: reason || 'Follow-up date updated via edit',
+                        status: 'pending' // pending review by owner
+                    };
+
+                    console.log('Saving to Firebase:', changeData);
+
+                    // Store in Firebase
+                    const holdRef = window.firebase.collection(window.firebase.db, 'followupChanges');
+                    const docRef = await window.firebase.addDoc(holdRef, changeData);
+                    console.log('Saved to Firebase with ID:', docRef.id);
+
+                    // Also store locally for immediate display
+                    this.followupChanges.unshift({ id: docRef.id, ...changeData });
+
+                    // Update badge count
+                    this.updateTodayHoldBadge();
+
+                    // Force refresh of Today's Hold display
+                    this.renderTodayHold();
+
+                    console.log('Follow-up change tracked, total changes:', this.followupChanges.length);
+                    console.log('Today\'s Hold data:', this.followupChanges);
+
+                } catch (error) {
+                    console.error('Error tracking follow-up change:', error);
                 }
             }
 
@@ -5585,6 +5679,11 @@
                     // Preload inventory in background
                     this.preloadInventory();
 
+                    // Load Today's Hold data (only for owner)
+                    if (this.userRole === 'owner') {
+                        await this.loadTodayHold();
+                    }
+
                     // Load other data
                     if (this.userRole === 'owner') {
                         await this.loadTeam();
@@ -5806,31 +5905,33 @@
                 tbody.innerHTML = '';
 
                 if (todayItems.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4">No follow-ups today</td></tr>';
+                    tbody.innerHTML = '=<tr><td colspan="7" class="text-center py-4">No follow-ups today</td></tr>';
                     return;
                 }
 
                 todayItems.forEach(enquiry => {
                     const row = document.createElement('tr');
-                    row.onclick = () => this.viewEnquiry(enquiry.id);
                     const time = new Date(enquiry.followupDate).toLocaleTimeString();
 
                     let vehicleDisplay = enquiry.isExchange ? 'Exchange' : 'Sale';
                     let modelDisplay = enquiry.isExchange ? (enquiry.exchangeModel || '') : (enquiry.vehicleModel || '');
 
                     row.innerHTML = `
-                    <td>${time}</td>
-                    <td>${enquiry.customerName || ''}</td>
-                    <td>${modelDisplay}</td>
-                    <td><span class="vehicle-badge ${enquiry.isExchange ? 'exchange' : 'car'}">${vehicleDisplay}</span></td>
-                    <td><span class="status-badge status-${enquiry.status || 'new'}">${enquiry.status || 'new'}</span></td>
-                    <td>${enquiry.salesManagerName || 'Unassigned'}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.viewEnquiry('${enquiry.id}')">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </td>
-                `;
+            <td>${time}</td>
+            <td><strong>${enquiry.customerName || ''}</strong><br><small>${enquiry.phone || ''}</small></td>
+            <td>${modelDisplay}</td>
+            <td><span class="vehicle-badge ${enquiry.isExchange ? 'exchange' : 'car'}">${vehicleDisplay}</span></td>
+            <td><span class="status-badge status-${enquiry.status || 'new'}">${enquiry.status || 'new'}</span></td>
+            <td>${enquiry.salesManagerName || 'Unassigned'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.viewEnquiry('${enquiry.id}')">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-info" onclick="event.stopPropagation(); app.showEditEnquiryModal('${enquiry.id}')">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </td>
+        `;
                     tbody.appendChild(row);
                 });
             }
@@ -5839,6 +5940,127 @@
                 const interventions = this.enquiries.filter(e => e.intervention);
                 this.renderInterventionsTable(interventions);
                 document.getElementById('interventions-badge').textContent = interventions.length;
+            }
+            async loadTodayHold() {
+                console.log('Loading Today\'s Hold data...');
+
+                try {
+                    // Load from Firebase
+                    const holdRef = window.firebase.collection(window.firebase.db, 'followupChanges');
+                    const q = window.firebase.query(
+                        holdRef,
+                        window.firebase.where('status', '==', 'pending'),
+                        window.firebase.orderBy('changedAt', 'desc'),
+                        window.firebase.limit(50)
+                    );
+
+                    const snapshot = await window.firebase.getDocs(q);
+                    this.followupChanges = [];
+
+                    console.log('Found changes in Firebase:', snapshot.size);
+
+                    snapshot.forEach(doc => {
+                        this.followupChanges.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    console.log('Loaded changes:', this.followupChanges.length);
+
+                    this.renderTodayHold();
+                    this.updateTodayHoldBadge();
+
+                } catch (error) {
+                    console.error('Error loading Today\'s Hold:', error);
+                    this.followupChanges = [];
+                    this.renderTodayHold();
+                }
+            }
+
+            renderTodayHold() {
+                console.log('Rendering Today\'s Hold, changes count:', this.followupChanges.length);
+
+                const tbody = document.getElementById('today-hold-list');
+                if (!tbody) {
+                    console.error('today-hold-list element not found');
+                    return;
+                }
+
+                tbody.innerHTML = '';
+
+                if (this.followupChanges.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No follow-up changes to review</td></tr>';
+                    return;
+                }
+
+                // Filter only pending changes
+                const pendingChanges = this.followupChanges.filter(c => c.status === 'pending');
+                console.log('Pending changes:', pendingChanges.length);
+
+                if (pendingChanges.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No pending follow-up changes to review</td></tr>';
+                    return;
+                }
+
+                pendingChanges.forEach(change => {
+                    const row = document.createElement('tr');
+
+                    const oldDateFormatted = change.oldFollowupDate ? new Date(change.oldFollowupDate).toLocaleDateString() : 'Not set';
+                    const newDateFormatted = change.newFollowupDate ? new Date(change.newFollowupDate).toLocaleDateString() : 'Not set';
+                    const changedAtFormatted = new Date(change.changedAt).toLocaleString();
+
+                    row.innerHTML = `
+             <td><strong>${change.customerName || 'Unknown'}</strong></td>
+             <td>${change.phone || 'N/A'}</td>
+             <td><span class="status-badge status-warning">${oldDateFormatted}</span></td>
+             <td><span class="status-badge status-new">${newDateFormatted}</span></td>
+             <td><span class="status-badge ${change.changedByRole === 'owner' ? 'status-booking' : 'status-followup'}">${change.changedBy || 'Unknown'} (${change.changedByRole || 'sales'})</span></td>
+             <td>${changedAtFormatted}</td>
+             <td><small>${change.reason || 'No reason provided'}</small></td>
+             <td>
+                <button class="btn btn-sm btn-success" onclick="app.resolveHold('${change.id}', '${change.enquiryId}')" title="Mark as Reviewed">
+                    <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-outline" onclick="app.viewEnquiry('${change.enquiryId}')" title="View Enquiry">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-info" onclick="app.showEditEnquiryModal('${change.enquiryId}')" title="Edit Enquiry">
+                    <i class="fas fa-edit"></i>
+                </button>
+             </td>
+        `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            updateTodayHoldBadge() {
+                const badge = document.getElementById('today-hold-badge');
+                if (badge) {
+                    badge.textContent = this.followupChanges.filter(c => c.status === 'pending').length;
+                }
+            }
+
+            async resolveHold(changeId, enquiryId) {
+                if (!confirm('Mark this follow-up change as reviewed? It will be removed from Today\'s Hold.')) return;
+
+                try {
+                    // Update in Firebase
+                    const holdRef = window.firebase.doc(window.firebase.db, 'followupChanges', changeId);
+                    await window.firebase.updateDoc(holdRef, {
+                        status: 'resolved',
+                        resolvedAt: new Date().toISOString(),
+                        resolvedBy: document.getElementById('user-name').textContent
+                    });
+
+                    // Update local data
+                    this.followupChanges = this.followupChanges.filter(c => c.id !== changeId);
+                    this.renderTodayHold();
+                    this.updateTodayHoldBadge();
+
+                    this.showToast('Follow-up change marked as reviewed', 'success');
+
+                } catch (error) {
+                    console.error('Error resolving hold:', error);
+                    this.showToast('Error marking as reviewed', 'error');
+                }
             }
 
             renderInterventionsTable(interventions) {
