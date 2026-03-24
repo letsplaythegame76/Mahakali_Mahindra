@@ -2889,6 +2889,7 @@
                         </div>
 
                         <!-- Exchange Yes/No Toggle -->
+                        <!-- Exchange Yes/No Toggle -->
                         <div class="form-group full-width">
                             <label>Is this an Exchange Enquiry?</label>
                             <div class="toggle-switch">
@@ -2903,11 +2904,11 @@
                             </div>
                         </div>
 
-                        <!-- Regular vehicle fields (hidden for exchange) -->
+                        <!-- Regular vehicle fields (ALWAYS visible) -->
                         <div id="regular-vehicle-fields">
                             <div class="form-group full-width">
-                                <label>Select Vehicle Model</label>
-                                <select id="enquiry-model" class="form-control">
+                                <label class="required">Select Vehicle Model (Customer's Interest)</label>
+                                <select id="enquiry-model" class="form-control" required>
                                     <option value="">Select a model from inventory</option>
                                     <!-- Models will be populated from inventory -->
                                 </select>
@@ -2915,13 +2916,13 @@
                             </div>
                         </div>
 
-                        <!-- Exchange fields (hidden for regular enquiries) -->
+                        <!-- Exchange fields (only visible when exchange is YES) -->
                         <div id="exchange-fields" style="display: none;" class="exchange-section">
-                            <h4><i class="fas fa-exchange-alt"></i> Exchange Details</h4>
+                            <h4><i class="fas fa-exchange-alt"></i> Exchange Vehicle Details</h4>
                             <div class="form-group">
-                                <label>Exchange Model (Brand & Model)</label>
+                                <label>Exchange Vehicle (Customer's Old Vehicle)</label>
                                 <input type="text" id="enquiry-exchange-model" class="form-control"
-                                    placeholder="e.g., Maruti Swift, Hero Splendor">
+                                    placeholder="e.g., Maruti Swift 2018, Hero Splendor 2020">
                                 <small class="text-muted">Enter the vehicle the customer wants to exchange</small>
                             </div>
                         </div>
@@ -3101,23 +3102,23 @@
                                 </div>
                             </div>
 
-                            <!-- Regular vehicle fields -->
+                            <!-- Regular vehicle fields (ALWAYS visible in edit) -->
                             <div id="edit-regular-vehicle-fields">
                                 <div class="form-group full-width">
-                                    <label>Select Vehicle Model</label>
+                                    <label>Select Vehicle Model (Customer's Interest)</label>
                                     <select id="edit-enquiry-model" class="form-control">
                                         <option value="">Select a model from inventory</option>
                                     </select>
                                 </div>
                             </div>
 
-                            <!-- Exchange fields -->
+                            <!-- Exchange fields (only visible when exchange is YES) -->
                             <div id="edit-exchange-fields" style="display: none;" class="exchange-section">
-                                <h4><i class="fas fa-exchange-alt"></i> Exchange Details</h4>
+                                <h4><i class="fas fa-exchange-alt"></i> Exchange Vehicle Details</h4>
                                 <div class="form-group">
-                                    <label>Exchange Model (Brand & Model)</label>
+                                    <label>Exchange Vehicle (Customer's Old Vehicle)</label>
                                     <input type="text" id="edit-exchange-model" class="form-control"
-                                        placeholder="e.g., Maruti Swift, Hero Splendor">
+                                        placeholder="e.g., Maruti Swift 2018, Hero Splendor 2020">
                                 </div>
                             </div>
 
@@ -4323,8 +4324,19 @@
                 const remarks = document.getElementById('edit-remarks').value.trim();
                 const bookingAmount = document.getElementById('edit-booking-amount').value;
 
-                // Check if follow-up date was changed
+                // Check if follow-up date was changed AND the old date was today
                 const isFollowupChanged = newFollowupDate !== oldFollowupDate;
+
+                // NEW: Check if the old follow-up date was today
+                let wasOldDateToday = false;
+                if (oldFollowupDate) {
+                    const oldDate = new Date(oldFollowupDate);
+                    const today = new Date();
+                    wasOldDateToday = oldDate.toDateString() === today.toDateString();
+                }
+
+                console.log('Edit enquiry - was old date today?', wasOldDateToday);
+                console.log('Is follow-up changed?', isFollowupChanged);
 
                 // Validate booking amount if status is booking
                 if (status === 'booking' && !bookingAmount) {
@@ -4405,19 +4417,22 @@
                         }
                     }
 
-                    // Track follow-up date change separately for Today's Hold
-                    // In saveEditEnquiry method, after tracking the follow-up change
-                    if (isFollowupChanged && oldFollowupDate) {
+                    // ONLY track follow-up change if:
+                    // 1. Follow-up date was changed
+                    // 2. AND the old date was today (enquiry was scheduled for today)
+                    if (isFollowupChanged && wasOldDateToday && oldFollowupDate) {
+                        console.log('Tracking follow-up change - enquiry was scheduled for today and date changed');
                         await this.trackFollowupChange(
                             this.currentEditEnquiry.id,
                             this.currentEditEnquiry.customerName,
                             this.currentEditEnquiry.phone,
                             oldFollowupDate,
                             newFollowupDate,
-                            remarks || 'No reason provided'
+                            remarks || 'Follow-up rescheduled from today'
                         );
-                        // Add this line to refresh Today's Hold display
-                        await this.loadTodayHold();
+                        await this.loadTodayHold(); // Refresh Today's Hold display
+                    } else if (isFollowupChanged && !wasOldDateToday) {
+                        console.log('Follow-up changed but old date was NOT today - not tracking in Today\'s Hold');
                     }
 
                     // Update local data
@@ -4426,7 +4441,6 @@
                     this.closeEditEnquiryModal();
                     this.filterEnquiries(); // Refresh the display
                     this.updateDashboard();
-                    this.renderTodayHold(); // Refresh Today's Hold section
                     this.showToast('Enquiry updated successfully!', 'success');
 
                 } catch (error) {
@@ -4439,9 +4453,7 @@
 
 
             async trackFollowupChange(enquiryId, customerName, phone, oldDate, newDate, reason) {
-                console.log('Tracking follow-up change:', {
-                    enquiryId, customerName, phone, oldDate, newDate, reason
-                });
+                console.log('Tracking follow-up change (from today to future)...');
 
                 try {
                     const changeData = {
@@ -4454,28 +4466,21 @@
                         changedByUid: this.currentUser?.uid,
                         changedByRole: this.userRole,
                         changedAt: new Date().toISOString(),
-                        reason: reason || 'Follow-up date updated via edit',
-                        status: 'pending' // pending review by owner
+                        reason: reason || 'Follow-up rescheduled from today',
+                        changeType: 'today_reschedule', // NEW: Identifies this as a today-to-future change
+                        status: 'pending'
                     };
 
                     console.log('Saving to Firebase:', changeData);
 
-                    // Store in Firebase
                     const holdRef = window.firebase.collection(window.firebase.db, 'followupChanges');
                     const docRef = await window.firebase.addDoc(holdRef, changeData);
-                    console.log('Saved to Firebase with ID:', docRef.id);
 
-                    // Also store locally for immediate display
+                    console.log('Saved with ID:', docRef.id);
+
                     this.followupChanges.unshift({ id: docRef.id, ...changeData });
-
-                    // Update badge count
                     this.updateTodayHoldBadge();
-
-                    // Force refresh of Today's Hold display
                     this.renderTodayHold();
-
-                    console.log('Follow-up change tracked, total changes:', this.followupChanges.length);
-                    console.log('Today\'s Hold data:', this.followupChanges);
 
                 } catch (error) {
                     console.error('Error tracking follow-up change:', error);
@@ -5407,15 +5412,18 @@
             // ==========================================================================
             toggleExchangeFields() {
                 const isExchange = document.querySelector('input[name="is-exchange"]:checked')?.value === 'yes';
-                const regularFields = document.getElementById('regular-vehicle-fields');
                 const exchangeFields = document.getElementById('exchange-fields');
 
+                // Regular vehicle fields ALWAYS remain visible
+                // Only toggle the exchange details section
                 if (isExchange) {
-                    regularFields.style.display = 'none';
                     exchangeFields.style.display = 'block';
+                    // Make exchange model field required for exchange enquiries
+                    document.getElementById('enquiry-exchange-model').required = true;
                 } else {
-                    regularFields.style.display = 'block';
                     exchangeFields.style.display = 'none';
+                    document.getElementById('enquiry-exchange-model').required = false;
+                    document.getElementById('enquiry-exchange-model').value = '';
                 }
             }
 
@@ -5979,32 +5987,27 @@
                 console.log('Rendering Today\'s Hold, changes count:', this.followupChanges.length);
 
                 const tbody = document.getElementById('today-hold-list');
-                if (!tbody) {
-                    console.error('today-hold-list element not found');
-                    return;
-                }
+                if (!tbody) return;
 
                 tbody.innerHTML = '';
 
                 if (this.followupChanges.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No follow-up changes to review</td></tr>';
+                    tbody.innerHTML = '=<td colspan="8" class="text-center py-4">No follow-up changes to review</td>=';
                     return;
                 }
 
-                // Filter only pending changes
                 const pendingChanges = this.followupChanges.filter(c => c.status === 'pending');
-                console.log('Pending changes:', pendingChanges.length);
 
                 if (pendingChanges.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No pending follow-up changes to review</td></tr>';
+                    tbody.innerHTML = '=<td colspan="8" class="text-center py-4">No pending follow-up changes to review</td>=';
                     return;
                 }
 
                 pendingChanges.forEach(change => {
                     const row = document.createElement('tr');
 
-                    const oldDateFormatted = change.oldFollowupDate ? new Date(change.oldFollowupDate).toLocaleDateString() : 'Not set';
-                    const newDateFormatted = change.newFollowupDate ? new Date(change.newFollowupDate).toLocaleDateString() : 'Not set';
+                    const oldDateFormatted = change.oldFollowupDate ? new Date(change.oldFollowupDate).toLocaleString() : 'Not set';
+                    const newDateFormatted = change.newFollowupDate ? new Date(change.newFollowupDate).toLocaleString() : 'Not set';
                     const changedAtFormatted = new Date(change.changedAt).toLocaleString();
 
                     row.innerHTML = `
@@ -6014,7 +6017,7 @@
              <td><span class="status-badge status-new">${newDateFormatted}</span></td>
              <td><span class="status-badge ${change.changedByRole === 'owner' ? 'status-booking' : 'status-followup'}">${change.changedBy || 'Unknown'} (${change.changedByRole || 'sales'})</span></td>
              <td>${changedAtFormatted}</td>
-             <td><small>${change.reason || 'No reason provided'}</small></td>
+             <td><small>${change.reason || 'No reason provided'}</small><br><small class="text-muted">Original follow-up was today</small></td>
              <td>
                 <button class="btn btn-sm btn-success" onclick="app.resolveHold('${change.id}', '${change.enquiryId}')" title="Mark as Reviewed">
                     <i class="fas fa-check"></i>
@@ -7121,39 +7124,38 @@
                     enquiryData.bookingDate = new Date().toISOString();
                 }
 
-                // Handle exchange vs regular vehicle
-                if (isExchange) {
-                    enquiryData.exchangeModel = document.getElementById('enquiry-exchange-model').value;
-                    enquiryData.vehicleType = 'exchange';
+                // Handle vehicle selection - ALWAYS select the vehicle customer is interested in
+                const selectedModel = document.getElementById('enquiry-model').value;
 
-                    // Validate exchange fields
-                    if (!enquiryData.exchangeModel) {
-                        this.showToast('Please enter the exchange vehicle model', 'error');
-                        return;
+                if (selectedModel && selectedModel !== "manual" && selectedModel !== "") {
+                    enquiryData.vehicleModel = selectedModel;
+
+                    // Extract type from the selected option if available
+                    const selectedOption = Array.from(document.querySelectorAll('#enquiry-model option')).find(
+                        opt => opt.value === selectedModel
+                    );
+
+                    if (selectedOption && selectedOption.dataset) {
+                        enquiryData.vehicleType = selectedOption.dataset.type || 'unknown';
+                        enquiryData.vehicleBrand = selectedOption.dataset.brand || '';
                     }
+                } else if (selectedModel === "manual") {
+                    enquiryData.vehicleModel = "Manual entry";
+                    enquiryData.remarks = (enquiryData.remarks ? enquiryData.remarks + "\n" : "") +
+                        "Note: Customer interested in a model not in inventory - please specify details.";
                 } else {
-                    const selectedModel = document.getElementById('enquiry-model').value;
+                    this.showToast('Please select a vehicle model', 'error');
+                    return;
+                }
 
-                    if (selectedModel && selectedModel !== "manual" && selectedModel !== "") {
-                        enquiryData.vehicleModel = selectedModel;
-
-                        // Extract type from the selected option if available
-                        const selectedOption = Array.from(document.querySelectorAll('#enquiry-model option')).find(
-                            opt => opt.value === selectedModel
-                        );
-
-                        if (selectedOption && selectedOption.dataset) {
-                            enquiryData.vehicleType = selectedOption.dataset.type || 'unknown';
-                            enquiryData.vehicleBrand = selectedOption.dataset.brand || '';
-                        }
-                    } else if (selectedModel === "manual") {
-                        enquiryData.vehicleModel = "Manual entry";
-                        enquiryData.remarks = (enquiryData.remarks ? enquiryData.remarks + "\n" : "") +
-                            "Note: Customer interested in a model not in inventory - please specify details.";
-                    } else {
-                        this.showToast('Please select a vehicle model', 'error');
+                // Handle exchange details if this is an exchange enquiry
+                if (isExchange) {
+                    const exchangeModel = document.getElementById('enquiry-exchange-model').value.trim();
+                    if (!exchangeModel) {
+                        this.showToast('Please enter the exchange vehicle details', 'error');
                         return;
                     }
+                    enquiryData.exchangeModel = exchangeModel;
                 }
 
                 // Validate common required fields
