@@ -4467,11 +4467,12 @@
                         changedByRole: this.userRole,
                         changedAt: new Date().toISOString(),
                         reason: reason || 'Follow-up rescheduled from today',
-                        changeType: 'today_reschedule', // NEW: Identifies this as a today-to-future change
+                        changeType: 'today_reschedule',
+                        showroomId: this.showroomData.id, // CRITICAL: Add showroomId for isolation
                         status: 'pending'
                     };
 
-                    console.log('Saving to Firebase:', changeData);
+                    console.log('Saving to Firebase with showroomId:', this.showroomData.id);
 
                     const holdRef = window.firebase.collection(window.firebase.db, 'followupChanges');
                     const docRef = await window.firebase.addDoc(holdRef, changeData);
@@ -5950,13 +5951,13 @@
                 document.getElementById('interventions-badge').textContent = interventions.length;
             }
             async loadTodayHold() {
-                console.log('Loading Today\'s Hold data...');
+                console.log('Loading Today\'s Hold data for showroom:', this.showroomData.id);
 
                 try {
-                    // Load from Firebase
                     const holdRef = window.firebase.collection(window.firebase.db, 'followupChanges');
                     const q = window.firebase.query(
                         holdRef,
+                        window.firebase.where('showroomId', '==', this.showroomData.id),
                         window.firebase.where('status', '==', 'pending'),
                         window.firebase.orderBy('changedAt', 'desc'),
                         window.firebase.limit(50)
@@ -5965,7 +5966,7 @@
                     const snapshot = await window.firebase.getDocs(q);
                     this.followupChanges = [];
 
-                    console.log('Found changes in Firebase:', snapshot.size);
+                    console.log('Found changes for this showroom:', snapshot.size);
 
                     snapshot.forEach(doc => {
                         this.followupChanges.push({ id: doc.id, ...doc.data() });
@@ -5978,8 +5979,33 @@
 
                 } catch (error) {
                     console.error('Error loading Today\'s Hold:', error);
-                    this.followupChanges = [];
-                    this.renderTodayHold();
+
+                    // Fallback query without ordering
+                    try {
+                        console.log('Trying fallback query without ordering...');
+                        const holdRef2 = window.firebase.collection(window.firebase.db, 'followupChanges');
+                        const q2 = window.firebase.query(
+                            holdRef2,
+                            window.firebase.where('showroomId', '==', this.showroomData.id),
+                            window.firebase.where('status', '==', 'pending')
+                        );
+                        const snapshot2 = await window.firebase.getDocs(q2);
+                        this.followupChanges = [];
+                        snapshot2.forEach(doc => {
+                            this.followupChanges.push({ id: doc.id, ...doc.data() });
+                        });
+                        // Sort locally
+                        this.followupChanges.sort((a, b) => {
+                            return new Date(b.changedAt) - new Date(a.changedAt);
+                        });
+                        console.log('Fallback loaded changes:', this.followupChanges.length);
+                        this.renderTodayHold();
+                        this.updateTodayHoldBadge();
+                    } catch (error2) {
+                        console.error('Error loading Today\'s Hold (fallback):', error2);
+                        this.followupChanges = [];
+                        this.renderTodayHold();
+                    }
                 }
             }
 
