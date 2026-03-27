@@ -5539,20 +5539,32 @@
 
                         this.userRole = userData.role;
 
-                        // MODIFIED: Combine showroom data with subscription data
+                        // Ensure showroom data exists with safe defaults
+                        const showroomData = userData.showroom || {};
+
+                        // MODIFIED: Combine showroom data with subscription data using safe defaults
                         this.showroomData = {
-                            ...userData.showroom,
-                            // Add root level fields
-                            planType: userData.planType,
-                            paymentStatus: userData.paymentStatus,
-                            subscriptionStartDate: userData.subscriptionStartDate,
-                            subscriptionEndDate: userData.subscriptionEndDate,
-                            // Add the FULL subscription object
-                            subscription: userData.subscription || {
+                            id: showroomData.id || 'unknown',
+                            name: showroomData.name || 'Unknown Showroom',
+                            address: showroomData.address || '',
+                            city: showroomData.city || '',
+                            state: showroomData.state || '',
+                            vehicleTypes: showroomData.vehicleTypes || [],
+                            brands: showroomData.brands || [],
+                            models: showroomData.models || {},
+                            // Add root level fields with safe fallbacks
+                            planType: userData.planType || showroomData.planType || 'trial',
+                            paymentStatus: userData.paymentStatus || showroomData.paymentStatus || 'unpaid',
+                            subscriptionStartDate: userData.subscriptionStartDate || showroomData.subscriptionStartDate,
+                            subscriptionEndDate: userData.subscriptionEndDate || showroomData.subscriptionEndDate,
+                            // Add the FULL subscription object with safe defaults
+                            subscription: userData.subscription || showroomData.subscription || {
                                 status: 'trial',
                                 planType: 'trial',
                                 paymentStatus: 'unpaid',
-                                paymentMethod: 'trial'
+                                paymentMethod: 'trial',
+                                startDate: new Date().toISOString(),
+                                endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
                             }
                         };
 
@@ -6988,7 +7000,6 @@
                     if (!this.ownerCredentials.email || !this.ownerCredentials.password) {
                         // If not stored, try to get from current user
                         if (this.currentUser && this.userRole === 'owner') {
-                            // We need to prompt for password once per session
                             const ownerPassword = prompt('For security, please enter your password to continue:');
                             if (!ownerPassword) {
                                 this.showToast('Operation cancelled', 'warning');
@@ -7018,19 +7029,68 @@
                         password
                     );
 
-                    // Save user data to Firestore including the password (in a real app, you'd hash this)
+                    // Create a clean showroom object with safe defaults
+                    const safeShowroomData = {
+                        id: this.showroomData.id || 'unknown',
+                        name: this.showroomData.name || 'Unknown Showroom',
+                        address: this.showroomData.address || '',
+                        city: this.showroomData.city || '',
+                        state: this.showroomData.state || '',
+                        vehicleTypes: this.showroomData.vehicleTypes || [],
+                        brands: this.showroomData.brands || [],
+                        models: this.showroomData.models || {}
+                    };
+
+                    // Add planType and subscription info only if they exist
+                    if (this.showroomData.planType) {
+                        safeShowroomData.planType = this.showroomData.planType;
+                    }
+                    if (this.showroomData.paymentStatus) {
+                        safeShowroomData.paymentStatus = this.showroomData.paymentStatus;
+                    }
+                    if (this.showroomData.subscriptionStartDate) {
+                        safeShowroomData.subscriptionStartDate = this.showroomData.subscriptionStartDate;
+                    }
+                    if (this.showroomData.subscriptionEndDate) {
+                        safeShowroomData.subscriptionEndDate = this.showroomData.subscriptionEndDate;
+                    }
+
+                    // Add subscription object only if it exists
+                    if (this.showroomData.subscription) {
+                        safeShowroomData.subscription = {
+                            status: this.showroomData.subscription.status || 'trial',
+                            planType: this.showroomData.subscription.planType || 'trial',
+                            paymentStatus: this.showroomData.subscription.paymentStatus || 'unpaid',
+                            startDate: this.showroomData.subscription.startDate || new Date().toISOString(),
+                            endDate: this.showroomData.subscription.endDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                        };
+                    } else {
+                        // Default subscription for new team member
+                        safeShowroomData.subscription = {
+                            status: 'trial',
+                            planType: 'trial',
+                            paymentStatus: 'unpaid',
+                            startDate: new Date().toISOString(),
+                            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                        };
+                    }
+
+                    // Save user data to Firestore with safe showroom object
                     const userData = {
                         uid: userCredential.user.uid,
                         name: name,
                         email: email,
                         phone: phone,
                         role: role,
-                        password: password, // Store the actual password (consider hashing in production)
-                        showroom: this.showroomData,
+                        password: password,
+                        showroom: safeShowroomData,
                         createdAt: new Date().toISOString(),
                         createdBy: this.currentUser.uid,
-                        createdByName: document.getElementById('user-name').textContent
+                        createdByName: document.getElementById('user-name').textContent,
+                        status: 'active' // Add status field for consistency
                     };
+
+                    console.log('Saving team member with showroom data:', safeShowroomData);
 
                     await window.firebase.setDoc(
                         window.firebase.doc(window.firebase.db, 'users', userCredential.user.uid),
@@ -7060,10 +7120,12 @@
                         this.showToast('Email already in use', 'error');
                     } else if (error.code === 'auth/wrong-password') {
                         this.showToast('Incorrect password. Please try again.', 'error');
-                        // Clear stored credentials on wrong password
                         this.ownerCredentials = { email: null, password: null };
                     } else if (error.code === 'auth/weak-password') {
                         this.showToast('Password is too weak. Please choose a stronger password.', 'error');
+                    } else if (error.message && error.message.includes('showroom')) {
+                        this.showToast('Error with showroom data. Please refresh and try again.', 'error');
+                        console.error('Showroom data issue:', this.showroomData);
                     } else {
                         this.showToast('Error adding team member: ' + error.message, 'error');
                     }
