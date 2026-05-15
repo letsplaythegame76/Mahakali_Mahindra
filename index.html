@@ -2218,6 +2218,269 @@
             position: relative;
             width: 100%;
         }
+
+        /* Next 10 Days Styles */
+        .date-range {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .urgent-badge {
+            background: rgba(231, 29, 54, 0.1);
+            color: var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        .soon-badge {
+            background: rgba(255, 159, 28, 0.1);
+            color: var(--warning);
+        }
+
+        .normal-badge {
+            background: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .quick-edit-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .quick-edit-group select,
+        .quick-edit-group input {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+        }
+
+        /* Day-wise Accordion Styles */
+        .day-accordion {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: var(--bg-secondary);
+        }
+
+        .day-header:hover {
+            background: var(--bg-hover);
+        }
+
+        .day-header.active {
+            background: var(--primary-light);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .day-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .day-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .day-date {
+            font-size: 0.875rem;
+            color: var(--text-light);
+        }
+
+        .day-stats {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .day-count {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .day-urgent-count {
+            background: var(--danger);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .day-arrow {
+            transition: transform var(--transition-fast);
+            color: var(--text-light);
+        }
+
+        .day-header.active .day-arrow {
+            transform: rotate(180deg);
+        }
+
+        .day-content {
+            display: none;
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .day-content.active {
+            display: block;
+        }
+
+        .day-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .day-table th {
+            text-align: left;
+            padding: 0.75rem;
+            background: var(--bg-secondary);
+            font-weight: 600;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .day-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 0.875rem;
+        }
+
+        .day-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .day-table tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .empty-day {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        /* Trial Expiration Overlay */
+        .trial-expired-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .trial-expired-overlay.active {
+            display: flex;
+        }
+
+        .trial-expired-modal {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+            animation: fadeIn 0.3s ease;
+            border: 2px solid var(--danger);
+            position: relative;
+            z-index: 1000000;
+        }
+
+        .trial-expired-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(231, 29, 54, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .trial-expired-icon i {
+            font-size: 3rem;
+            color: var(--danger);
+        }
+
+        .trial-expired-modal h2 {
+            color: var(--danger);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .trial-expired-modal p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .trial-expired-modal .btn-upgrade {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: var(--radius-full);
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .trial-expired-modal .btn-upgrade:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .trial-expired-modal .expiry-date {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-light);
+        }
+
+        /* Disabled pointer events for main content when trial expired */
+        .trial-blocked {
+            pointer-events: none;
+            opacity: 0.3;
+            user-select: none;
+        }
+
+        .main-content-blocked {
+            pointer-events: none;
+            opacity: 0.3;
+        }
     </style>
 </head>
 
@@ -2654,6 +2917,11 @@
                         <i class="fas fa-clock"></i>
                         <span class="nav-text">Today's Hold</span>
                         <span class="nav-badge" id="today-hold-badge">0</span>
+                    </button>
+                    <button class="nav-btn" data-section="next-10-days">
+                        <i class="fas fa-calendar-week"></i>
+                        <span class="nav-text">Next 10 Days</span>
+                        <span class="nav-badge" id="next-10-days-badge">0</span>
                     </button>
                 </nav>
 
@@ -3519,6 +3787,53 @@
                     </table>
                 </div>
             </section>
+            <!-- Next 10 Days Follow-up Section -->
+            <!-- Next 10 Days Follow-up Section -->
+            <section id="next-10-days" class="section">
+                <div class="section-header">
+                    <h2><i class="fas fa-calendar-week"></i> Next 10 Days Follow-ups</h2>
+                    <div class="date-range">
+                        <span id="next-10-days-range"></span>
+                        <button class="btn btn-sm btn-outline" onclick="app.refreshNext10Days()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(67, 97, 238, 0.1);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-label">Total Upcoming</div>
+                        <div class="stat-value" id="upcoming-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(231, 29, 54, 0.1);">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="stat-label">Today's Follow-ups</div>
+                        <div class="stat-value" id="today-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(255, 159, 28, 0.1);">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stat-label">Next 3 Days</div>
+                        <div class="stat-value" id="priority-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(46, 196, 182, 0.1);">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-label">Active Enquiries</div>
+                        <div class="stat-value" id="active-count">0</div>
+                    </div>
+                </div>
+
+                <!-- Day-wise Accordion Container -->
+                <div id="day-wise-container"></div>
+            </section>
         </main>
 
         <!-- Inventory Modal -->
@@ -3836,6 +4151,10 @@
                 // Upgrade payment method
                 this.upgradePaymentMethod = 'razorpay';
 
+                // ADD THIS LINE - Track if user came from trial block
+                this.isComingFromTrialBlock = false;
+
+
                 this.init();
             }
 
@@ -3853,6 +4172,10 @@
                 document.addEventListener('visibilitychange', () => {
                     if (!document.hidden) {
                         this.handlePageLoad();
+                        // Re-check blocker when tab becomes visible again
+                        if (this.currentUser) {
+                            this.checkAndReapplyBlocker();
+                        }
                     }
                 });
 
@@ -3860,6 +4183,19 @@
                 document.addEventListener('DOMContentLoaded', () => {
                     this.ensureNavigationVisible();
                 });
+
+                // Start trial period check interval (every minute)
+                this.startTrialCheckInterval();
+
+                // Handle browser back/forward buttons
+                window.addEventListener('popstate', () => {
+                    if (this.currentUser && this.isTrialFullyExpired()) {
+                        this.checkAndReapplyBlocker();
+                    }
+                });
+
+                // Store initial state to prevent back button bypass
+                history.pushState({ trialBlocked: this.isTrialFullyExpired() }, '');
             }
             handlePageLoad() {
                 console.log('Page loaded/reloaded');
@@ -4103,6 +4439,11 @@
             }
 
             switchSection(sectionId) {
+
+                if (this.isTrialExpired() && sectionId !== 'upgrade') {
+                    this.blockIfTrialExpired();
+                    return;
+                }
                 // Update navigation buttons
                 document.querySelectorAll('.nav-btn').forEach(btn => {
                     btn.classList.remove('active');
@@ -4147,6 +4488,9 @@
                     this.loadTodaySchedule();
                 } else if (sectionId === 'today-hold' && this.userRole === 'owner') {
                     this.loadTodayHold(); // Refresh Today's Hold when opened
+                }
+                else if (sectionId === 'next-10-days') {
+                    this.loadNext10Days();
                 }
             }
             // ==========================================================================
@@ -4312,6 +4656,13 @@
             }
 
             async saveEditEnquiry() {
+
+                if (this.blockIfTrialExpired()) return;
+                const status2 = this.getTrialStatus();
+                if (status2.status === 'grace') {
+                    this.showToast(`⚠️ Grace period active (${status.daysLeft} days left). Please upgrade to add new enquiries.`, 'warning');
+                    return;
+                }
                 if (!this.currentEditEnquiry) {
                     this.closeEditEnquiryModal();
                     return;
@@ -4723,12 +5074,43 @@
                 this.updateUpgradeButtonText(planType, daysLeft, paymentStatus);
 
                 // Update subscription banner
+                // Inside updateSubscriptionDisplay method, update the trial section
+                // Inside updateSubscriptionDisplay method, update the trial section
                 if (planType === 'trial') {
-                    if (statusEl) statusEl.innerHTML = `<i class="fas fa-gift"></i> Trial Period - ${daysLeft} days left`;
-                    if (expiryEl) expiryEl.textContent = `Expires on ${endDate.toLocaleDateString()}`;
-                    if (bannerUpgradeBtn) {
-                        bannerUpgradeBtn.innerHTML = '<i class="fas fa-rocket"></i> Upgrade Now';
-                        bannerUpgradeBtn.onclick = () => this.showUpgradeModal();
+                    const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+
+                    if (daysLeft < 0) {
+                        // Trial expired - show expired status
+                        if (statusEl) {
+                            statusEl.innerHTML = `<i class="fas fa-hourglass-end" style="color: var(--danger);"></i> Trial Expired - Please Upgrade`;
+                            statusEl.style.color = 'var(--danger)';
+                        }
+                        if (expiryEl) expiryEl.textContent = `Expired on ${endDate.toLocaleDateString()}`;
+                        if (bannerUpgradeBtn) {
+                            bannerUpgradeBtn.innerHTML = '<i class="fas fa-crown"></i> Upgrade Now';
+                            bannerUpgradeBtn.style.background = '#e71d36';
+                            bannerUpgradeBtn.style.cursor = 'pointer';
+                            bannerUpgradeBtn.onclick = () => this.showUpgradeModal();
+                        }
+                    } else if (daysLeft <= 3) {
+                        // Trial ending soon - warning
+                        if (statusEl) {
+                            statusEl.innerHTML = `<i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> Trial Ends in ${daysLeft} days!`;
+                        }
+                        if (expiryEl) expiryEl.textContent = `Expires on ${endDate.toLocaleDateString()}`;
+                        if (bannerUpgradeBtn) {
+                            bannerUpgradeBtn.innerHTML = '<i class="fas fa-rocket"></i> Upgrade Now';
+                            bannerUpgradeBtn.style.background = '#f59e0b';
+                            bannerUpgradeBtn.onclick = () => this.showUpgradeModal();
+                        }
+                    } else {
+                        // Normal trial
+                        if (statusEl) statusEl.innerHTML = `<i class="fas fa-gift"></i> Trial Period - ${daysLeft} days left`;
+                        if (expiryEl) expiryEl.textContent = `Expires on ${endDate.toLocaleDateString()}`;
+                        if (bannerUpgradeBtn) {
+                            bannerUpgradeBtn.innerHTML = '<i class="fas fa-rocket"></i> Upgrade Now';
+                            bannerUpgradeBtn.onclick = () => this.showUpgradeModal();
+                        }
                     }
                 } else if (planType === 'paid') {
                     if (paymentStatus === 'paid') {
@@ -4765,6 +5147,1126 @@
                         }
                     }
                 }
+            }
+
+            // ==========================================================================
+            // Trial Expiration - Complete Blocker (Blocks after trial + 5 days)
+            // ==========================================================================
+
+            isTrialFullyExpired() {
+                // REMOVED the owner check - now blocks ALL users
+                // if (this.userRole !== 'owner') return false;
+
+                if (!this.showroomData || !this.showroomData.subscription) return false;
+
+                const subscription = this.showroomData.subscription;
+
+                // Check if it's a trial subscription
+                const isTrial = subscription.planType === 'trial' || subscription.status === 'trial';
+
+                if (!isTrial) return false;
+
+                // Get trial end date
+                let endDate = null;
+                if (subscription.endDate) {
+                    if (subscription.endDate.toDate) {
+                        endDate = subscription.endDate.toDate();
+                    } else if (subscription.endDate.seconds) {
+                        endDate = new Date(subscription.endDate.seconds * 1000);
+                    } else {
+                        endDate = new Date(subscription.endDate);
+                    }
+                }
+
+                if (!endDate) return false;
+
+                const today = new Date();
+                const daysAfterExpiry = Math.ceil((today - endDate) / (1000 * 60 * 60 * 24));
+
+                // Block after trial ends AND 5+ days have passed for ALL users
+                const isFullyExpired = daysAfterExpiry >= 6;
+
+                return isFullyExpired;
+            }
+
+            getTrialStatus() {
+                if (this.userRole !== 'owner') return { status: 'active', daysLeft: 999 };
+
+                if (!this.showroomData || !this.showroomData.subscription) {
+                    return { status: 'active', daysLeft: 999 };
+                }
+
+                const subscription = this.showroomData.subscription;
+                const isTrial = subscription.planType === 'trial' || subscription.status === 'trial';
+
+                if (!isTrial) return { status: 'paid', daysLeft: 999 };
+
+                let endDate = null;
+                if (subscription.endDate) {
+                    if (subscription.endDate.toDate) {
+                        endDate = subscription.endDate.toDate();
+                    } else if (subscription.endDate.seconds) {
+                        endDate = new Date(subscription.endDate.seconds * 1000);
+                    } else {
+                        endDate = new Date(subscription.endDate);
+                    }
+                }
+
+                if (!endDate) return { status: 'active', daysLeft: 999 };
+
+                const today = new Date();
+                const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+                const daysAfterExpiry = Math.ceil((today - endDate) / (1000 * 60 * 60 * 24));
+
+                if (daysLeft > 0) {
+                    return { status: 'active', daysLeft: daysLeft };
+                } else if (daysAfterExpiry >= 1 && daysAfterExpiry <= 5) {
+                    return { status: 'grace', daysOverdue: daysAfterExpiry, daysLeft: 5 - daysAfterExpiry + 1 };
+                } else {
+                    return { status: 'expired', daysOverdue: daysAfterExpiry };
+                }
+            }
+
+            showTrialExpiredBlockScreen() {
+                // Remove any existing blocker
+                const existingBlocker = document.getElementById('trial-blocker-overlay');
+                if (existingBlocker) return;
+
+                // Don't show blocker if user is currently in upgrade modal
+                const upgradeModal = document.getElementById('upgrade-modal');
+                if (upgradeModal && upgradeModal.classList.contains('active')) {
+                    return;
+                }
+
+                const status = this.getTrialStatus();
+
+                // Create full-screen blocker
+                const blockerHTML = `
+        <div id="trial-blocker-overlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        ">
+            <div style="
+                background: var(--bg-card);
+                border-radius: var(--radius-xl);
+                padding: 2rem;
+                max-width: 500px;
+                width: 90%;
+                text-align: center;
+                box-shadow: var(--shadow-xl);
+                border: 2px solid var(--danger);
+                animation: fadeIn 0.3s ease;
+            ">
+                <div style="
+                    width: 80px;
+                    height: 80px;
+                    background: rgba(231, 29, 54, 0.1);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 1.5rem;
+                ">
+                    <i class="fas fa-lock" style="font-size: 3rem; color: var(--danger);"></i>
+                </div>
+                <h2 style="color: var(--danger); margin-bottom: 1rem;">Access Locked</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.6;">
+                    Your 30-day free trial has ended and the 5-day grace period has expired.<br><br>
+                    <strong>Trial ended on: ${this.getTrialEndDate()}</strong><br><br>
+                    Please upgrade immediately to regain access to your showroom data.
+                </p>
+                <button id="upgrade-blocker-btn" class="btn-upgrade" style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 1rem 2rem;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    border-radius: var(--radius-full);
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    margin-top: 0.5rem;
+                ">
+                    <i class="fas fa-crown"></i> Upgrade to Premium
+                </button>
+                <p style="color: var(--text-light); font-size: 0.75rem; margin-top: 1.5rem;">
+                    Contact support: support@showroomdesk.com
+                </p>
+            </div>
+        </div>
+        <style>
+            @keyframes fadeIn {
+                from { opacity: 0; transform: scale(0.95); }
+                to { opacity: 1; transform: scale(1); }
+            }
+        </style>
+    `;
+
+                document.body.insertAdjacentHTML('beforeend', blockerHTML);
+
+                // Add click handler for upgrade button
+                const upgradeBtn = document.getElementById('upgrade-blocker-btn');
+                if (upgradeBtn) {
+                    upgradeBtn.onclick = () => {
+                        // Remove blocker temporarily to show upgrade modal
+                        this.removeTrialBlockerScreen();
+                        this.showUpgradeModal();
+                    };
+                }
+
+                // Disable all interactive elements on the page
+                this.disableAllInteractions();
+            }
+
+            getTrialEndDate() {
+                if (!this.showroomData || !this.showroomData.subscription) return 'Unknown';
+
+                const subscription = this.showroomData.subscription;
+                let endDate = null;
+
+                if (subscription.endDate) {
+                    if (subscription.endDate.toDate) {
+                        endDate = subscription.endDate.toDate();
+                    } else if (subscription.endDate.seconds) {
+                        endDate = new Date(subscription.endDate.seconds * 1000);
+                    } else {
+                        endDate = new Date(subscription.endDate);
+                    }
+                }
+
+                return endDate ? endDate.toLocaleDateString() : 'Unknown';
+            }
+
+            removeTrialBlockerScreen() {
+                const blocker = document.getElementById('trial-blocker-overlay');
+                if (blocker) blocker.remove();
+                this.enableAllInteractions();
+            }
+
+            disableAllInteractions() {
+                // Store current page scroll position
+                document.body.style.overflow = 'hidden';
+
+                // Disable all buttons
+                document.querySelectorAll('button, .nav-btn, .btn, .user-profile, .dropdown-item').forEach(el => {
+                    if (!el.closest('#trial-blocker-overlay')) {
+                        el.disabled = true;
+                        el.style.pointerEvents = 'none';
+                    }
+                });
+
+                // Disable all form inputs
+                document.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.disabled = true;
+                });
+
+                // Disable all clickable rows
+                document.querySelectorAll('.data-table tbody tr, .followup-item, .intervention-item, .day-header, .brand-header').forEach(el => {
+                    el.style.pointerEvents = 'none';
+                    el.style.cursor = 'not-allowed';
+                });
+
+                // Disable navigation
+                document.querySelectorAll('.main-nav, .nav-btn').forEach(el => {
+                    el.style.pointerEvents = 'none';
+                    el.style.opacity = '0.5';
+                });
+            }
+
+            enableAllInteractions() {
+                document.body.style.overflow = '';
+
+                // Re-enable all buttons
+                document.querySelectorAll('button, .nav-btn, .btn, .user-profile, .dropdown-item').forEach(el => {
+                    el.disabled = false;
+                    el.style.pointerEvents = '';
+                    el.style.opacity = '';
+                });
+
+                // Re-enable all form inputs
+                document.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.disabled = false;
+                });
+
+                // Re-enable all clickable rows
+                document.querySelectorAll('.data-table tbody tr, .followup-item, .intervention-item, .day-header, .brand-header').forEach(el => {
+                    el.style.pointerEvents = '';
+                    el.style.cursor = '';
+                });
+
+                // Re-enable navigation
+                document.querySelectorAll('.main-nav, .nav-btn').forEach(el => {
+                    el.style.pointerEvents = '';
+                    el.style.opacity = '';
+                });
+            }
+
+            blockIfTrialFullyExpired() {
+                if (this.isTrialFullyExpired()) {
+                    this.showTrialExpiredBlockScreen();
+                    return true;
+                }
+                return false;
+            }
+
+            showGracePeriodWarning() {
+                const status = this.getTrialStatus();
+
+                if (status.status === 'grace') {
+                    // Remove existing warning
+                    const existingWarning = document.getElementById('grace-warning');
+                    if (existingWarning) existingWarning.remove();
+
+                    const warningHTML = `
+            <div id="grace-warning" style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #f59e0b, #ea580c);
+                color: white;
+                padding: 0.75rem;
+                text-align: center;
+                z-index: 10000;
+                animation: slideDown 0.5s ease;
+            ">
+                <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                    <div>
+                        <i class="fas fa-hourglass-half"></i>
+                        <strong>⚠️ Grace Period: ${status.daysLeft} day${status.daysLeft !== 1 ? 's' : ''} remaining!</strong>
+                        Your trial ended ${status.daysOverdue} day${status.daysOverdue !== 1 ? 's' : ''} ago. 
+                        After ${status.daysLeft} days, access will be locked.
+                    </div>
+                    <button id="grace-upgrade-btn" class="btn-upgrade" style="
+                        background: white;
+                        color: #ea580c;
+                        padding: 0.5rem 1.5rem;
+                        font-size: 0.875rem;
+                        border-radius: var(--radius-full);
+                        cursor: pointer;
+                        border: none;
+                        font-weight: 600;
+                    ">
+                        <i class="fas fa-crown"></i> Upgrade Now
+                    </button>
+                </div>
+            </div>
+            <style>
+                @keyframes slideDown {
+                    from { transform: translateY(-100%); }
+                    to { transform: translateY(0); }
+                }
+            </style>
+        `;
+
+                    document.body.insertAdjacentHTML('afterbegin', warningHTML);
+
+                    const upgradeBtn = document.getElementById('grace-upgrade-btn');
+                    if (upgradeBtn) {
+                        upgradeBtn.onclick = () => this.showUpgradeModal();
+                    }
+                }
+            }
+
+            enableGracePeriodChecks() {
+                // Override action methods during grace period
+                const self = this;
+
+                // Check before any save operation
+                const originalSaveEnquiry = this.saveEnquiry;
+                this.saveEnquiry = async function (e) {
+                    const status = self.getTrialStatus();
+                    if (status.status === 'grace') {
+                        self.showToast(`⚠️ Grace period active! Please upgrade to add new enquiries. ${status.daysLeft} days left before access is locked.`, 'warning');
+                        return;
+                    }
+                    return originalSaveEnquiry.call(self, e);
+                };
+            }
+
+            // ==========================================================================
+            // Trial Expiration - Action Blocker
+            // ==========================================================================
+
+            isTrialExpired() {
+                // Only check for owners
+                if (this.userRole !== 'owner') return false;
+
+                if (!this.showroomData || !this.showroomData.subscription) return false;
+
+                const subscription = this.showroomData.subscription;
+
+                // Check if it's a trial subscription
+                const isTrial = subscription.planType === 'trial' || subscription.status === 'trial';
+
+                if (!isTrial) return false;
+
+                // Get trial end date
+                let endDate = null;
+                if (subscription.endDate) {
+                    if (subscription.endDate.toDate) {
+                        endDate = subscription.endDate.toDate();
+                    } else if (subscription.endDate.seconds) {
+                        endDate = new Date(subscription.endDate.seconds * 1000);
+                    } else {
+                        endDate = new Date(subscription.endDate);
+                    }
+                }
+
+                if (!endDate) return false;
+
+                const today = new Date();
+                const isExpired = today > endDate;
+
+                return isExpired;
+            }
+
+            blockIfTrialExpired() {
+                if (this.isTrialExpired()) {
+                    this.showTrialExpiredBlockScreen();
+                    return true;
+                }
+                return false;
+            }
+
+            showTrialExpiredBlockScreen() {
+                // Remove any existing blocker
+                const existingBlocker = document.getElementById('trial-blocker-overlay');
+                if (existingBlocker) return;
+
+                // Create full-screen blocker
+                const blockerHTML = `
+        <div id="trial-blocker-overlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        ">
+            <div style="
+                background: var(--bg-card);
+                border-radius: var(--radius-xl);
+                padding: 2rem;
+                max-width: 450px;
+                width: 90%;
+                text-align: center;
+                box-shadow: var(--shadow-xl);
+                border: 2px solid var(--danger);
+            ">
+                <div style="
+                    width: 80px;
+                    height: 80px;
+                    background: rgba(231, 29, 54, 0.1);
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto 1.5rem;
+                ">
+                    <i class="fas fa-hourglass-end" style="font-size: 3rem; color: var(--danger);"></i>
+                </div>
+                <h2 style="color: var(--danger); margin-bottom: 1rem;">Trial Period Ended</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Your 30-day free trial expired on <strong>${new Date().toLocaleDateString()}</strong>.<br>
+                    Please upgrade to premium to continue using ShowroomDesk.
+                </p>
+                <button id="upgrade-blocker-btn" class="btn-upgrade" style="
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 1rem 2rem;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    border-radius: var(--radius-full);
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                ">
+                    <i class="fas fa-crown"></i> Upgrade to Premium
+                </button>
+            </div>
+        </div>
+    `;
+
+                document.body.insertAdjacentHTML('beforeend', blockerHTML);
+
+                // Add click handler for upgrade button
+                const upgradeBtn = document.getElementById('upgrade-blocker-btn');
+                if (upgradeBtn) {
+                    upgradeBtn.onclick = () => {
+                        this.removeTrialBlockerScreen();
+                        this.showUpgradeModal();
+                    };
+                }
+
+                // Disable all interactive elements on the page
+                this.disableAllInteractions();
+            }
+
+            removeTrialBlockerScreen() {
+                const blocker = document.getElementById('trial-blocker-overlay');
+                if (blocker) blocker.remove();
+                this.enableAllInteractions();
+            }
+
+            disableAllInteractions() {
+                // Store current page scroll position
+                document.body.style.overflow = 'hidden';
+
+                // Disable all buttons
+                document.querySelectorAll('button, .nav-btn, .btn, .user-profile, .dropdown-item').forEach(el => {
+                    if (!el.closest('#trial-blocker-overlay')) {
+                        el.disabled = true;
+                        el.style.pointerEvents = 'none';
+                    }
+                });
+
+                // Disable all form inputs
+                document.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.disabled = true;
+                });
+
+                // Disable all clickable rows
+                document.querySelectorAll('.data-table tbody tr, .followup-item, .intervention-item').forEach(el => {
+                    el.style.pointerEvents = 'none';
+                });
+            }
+
+            enableAllInteractions() {
+                document.body.style.overflow = '';
+
+                // Re-enable all buttons
+                document.querySelectorAll('button, .nav-btn, .btn, .user-profile, .dropdown-item').forEach(el => {
+                    el.disabled = false;
+                    el.style.pointerEvents = '';
+                });
+
+                // Re-enable all form inputs
+                document.querySelectorAll('input, select, textarea').forEach(el => {
+                    el.disabled = false;
+                });
+
+                // Re-enable all clickable rows
+                document.querySelectorAll('.data-table tbody tr, .followup-item, .intervention-item').forEach(el => {
+                    el.style.pointerEvents = '';
+                });
+            }
+
+            startTrialCheckInterval() {
+                // Check trial every 30 seconds
+                setInterval(() => {
+                    if (this.currentUser && this.userRole === 'owner') {
+                        const status = this.getTrialStatus();
+
+                        if (status.status === 'expired') {
+                            this.blockIfTrialFullyExpired();
+                        } else if (status.status === 'grace') {
+                            this.showGracePeriodWarning();
+                        }
+                    }
+                }, 30000);
+            }
+
+            // ==========================================================================
+            // Trial Period Expiration Handler
+            // ==========================================================================
+
+            // ==========================================================================
+            // Enhanced Trial Period Handler with 5-Day Grace Period
+            // ==========================================================================
+
+            checkTrialExpiration() {
+                // Only check for owners
+                if (this.userRole !== 'owner') return false;
+
+                if (!this.showroomData || !this.showroomData.subscription) return false;
+
+                const subscription = this.showroomData.subscription;
+
+                // Check if it's a trial subscription
+                const isTrial = subscription.planType === 'trial' || subscription.status === 'trial';
+
+                if (!isTrial) {
+                    // Paid user - ensure full access
+                    this.removeTrialRestrictions();
+                    return false;
+                }
+
+                // Get trial end date
+                let endDate = null;
+                if (subscription.endDate) {
+                    if (subscription.endDate.toDate) {
+                        endDate = subscription.endDate.toDate();
+                    } else if (subscription.endDate.seconds) {
+                        endDate = new Date(subscription.endDate.seconds * 1000);
+                    } else {
+                        endDate = new Date(subscription.endDate);
+                    }
+                } else if (subscription.trialEnds) {
+                    if (subscription.trialEnds.toDate) {
+                        endDate = subscription.trialEnds.toDate();
+                    } else {
+                        endDate = new Date(subscription.trialEnds);
+                    }
+                }
+
+                if (!endDate) return false;
+
+                const today = new Date();
+                const daysAfterExpiry = Math.ceil((today - endDate) / (1000 * 60 * 60 * 24));
+                const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+
+                // CASE 1: Trial not started yet (should not happen)
+                if (daysLeft > 30) return false;
+
+                // CASE 2: Within trial period
+                if (daysLeft > 0) {
+                    this.showTrialActive(daysLeft);
+                    return false;
+                }
+
+                // CASE 3: Grace period (1-5 days after expiry)
+                if (daysAfterExpiry >= 1 && daysAfterExpiry <= 5) {
+                    this.showGracePeriod(daysAfterExpiry);
+                    return true;
+                }
+
+                // CASE 4: Fully expired (more than 5 days after expiry)
+                if (daysAfterExpiry > 5) {
+                    this.showFullyExpired();
+                    return true;
+                }
+
+                return false;
+            }
+
+            showTrialActive(daysLeft) {
+                // Normal trial - full access
+                this.removeTrialRestrictions();
+
+                // Show warning if ending soon
+                if (daysLeft <= 3) {
+                    this.showToast(`⚠️ Your trial ends in ${daysLeft} days! Upgrade to avoid interruption.`, 'warning');
+                }
+            }
+
+            showGracePeriod(daysOverdue) {
+                const daysLeft = 5 - daysOverdue + 1;
+
+                // Enable read-only mode
+                this.activateReadOnlyMode();
+
+                // Create grace period notification
+                const existingNotification = document.getElementById('grace-period-notification');
+                if (existingNotification) return;
+
+                const notificationHTML = `
+        <div id="grace-period-notification" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            color: white;
+            padding: 0.75rem;
+            text-align: center;
+            z-index: 10000;
+            animation: slideDown 0.5s ease;
+        ">
+            <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                    <i class="fas fa-hourglass-half"></i>
+                    <strong> Grace Period: ${daysLeft} day${daysLeft !== 1 ? 's' : ''} remaining!</strong>
+                    Your trial ended on ${new Date().toLocaleDateString()}. You can view data but cannot add/edit.
+                </div>
+                <button class="btn-upgrade" onclick="app.showUpgradeModal()" style="
+                    background: white;
+                    color: #ea580c;
+                    padding: 0.5rem 1.5rem;
+                    font-size: 0.875rem;
+                ">
+                    <i class="fas fa-crown"></i> Upgrade Now
+                </button>
+            </div>
+        </div>
+        <style>
+            @keyframes slideDown {
+                from { transform: translateY(-100%); }
+                to { transform: translateY(0); }
+            }
+        </style>
+    `;
+
+                document.body.insertAdjacentHTML('afterbegin', notificationHTML);
+
+                // Update subscription banner
+                const statusEl = document.getElementById('subscription-status');
+                if (statusEl) {
+                    statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Grace Period: ${daysLeft} days left! Read-only mode.`;
+                    statusEl.style.color = '#ea580c';
+                }
+            }
+
+            showFullyExpired() {
+                // Block all activities completely
+                this.activateFullBlocker();
+
+                // Remove grace period notification if exists
+                const notification = document.getElementById('grace-period-notification');
+                if (notification) notification.remove();
+
+                // Show expired modal
+                const existingModal = document.getElementById('fully-expired-modal');
+                if (existingModal) return;
+
+                const modalHTML = `
+        <div id="fully-expired-modal" style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            z-index: 100000;
+            box-shadow: var(--shadow-xl);
+            border: 2px solid var(--danger);
+        ">
+            <div style="width: 80px; height: 80px; background: rgba(231, 29, 54, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="fas fa-lock" style="font-size: 3rem; color: var(--danger);"></i>
+            </div>
+            <h2 style="color: var(--danger); margin-bottom: 1rem;">Access Locked</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+                Your trial period has ended and the 5-day grace period has expired. 
+                Please upgrade immediately to regain access to your showroom data.
+            </p>
+            <button id="upgrade-from-expired" class="btn-upgrade" style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 0.75rem 2rem;
+                font-size: 1rem;
+                font-weight: 600;
+                border-radius: var(--radius-full);
+                cursor: pointer;
+            ">
+                <i class="fas fa-crown"></i> Upgrade Now
+            </button>
+        </div>
+        <div id="expired-overlay" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 99999;
+        "></div>
+    `;
+
+                document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+                const upgradeBtn = document.getElementById('upgrade-from-expired');
+                if (upgradeBtn) {
+                    upgradeBtn.onclick = () => {
+                        this.removeExpiredModal();
+                        this.showUpgradeModal();
+                    };
+                }
+            }
+
+            removeExpiredModal() {
+                const modal = document.getElementById('fully-expired-modal');
+                const overlay = document.getElementById('expired-overlay');
+                if (modal) modal.remove();
+                if (overlay) overlay.remove();
+            }
+
+            activateReadOnlyMode() {
+                // Disable all add/edit/delete buttons but keep view functionality
+
+                // Disable Add Enquiry button
+                const addEnquiryBtn = document.querySelector('.btn-primary[onclick*="add-enquiry"]');
+                if (addEnquiryBtn) {
+                    addEnquiryBtn.disabled = true;
+                    addEnquiryBtn.style.opacity = '0.5';
+                    addEnquiryBtn.style.cursor = 'not-allowed';
+                    addEnquiryBtn.title = 'Upgrade to add new enquiries';
+                }
+
+                // Disable Edit buttons
+                document.querySelectorAll('.btn-info, .btn-edit, [onclick*="showEditEnquiryModal"]').forEach(btn => {
+                    if (!btn.closest('#grace-period-notification')) {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.5';
+                        btn.style.cursor = 'not-allowed';
+                    }
+                });
+
+                // Disable Add New Model button in inventory
+                const addInventoryBtn = document.querySelector('[onclick*="showAddInventoryModal"]');
+                if (addInventoryBtn) {
+                    addInventoryBtn.disabled = true;
+                    addInventoryBtn.style.opacity = '0.5';
+                    addInventoryBtn.style.cursor = 'not-allowed';
+                }
+
+                // Disable Add Team Member button
+                const addTeamBtn = document.querySelector('[onclick*="showAddTeamModal"]');
+                if (addTeamBtn) {
+                    addTeamBtn.disabled = true;
+                    addTeamBtn.style.opacity = '0.5';
+                    addTeamBtn.style.cursor = 'not-allowed';
+                }
+
+                // Disable status change dropdowns
+                document.querySelectorAll('#enquiry-status, .status-update').forEach(select => {
+                    select.disabled = true;
+                });
+
+                // Disable enquiry form inputs
+                document.querySelectorAll('#enquiry-form input, #enquiry-form select, #enquiry-form textarea').forEach(input => {
+                    input.disabled = true;
+                });
+
+                // Add read-only indicator to dashboard
+                const dashboardHeader = document.querySelector('#dashboard .section-header');
+                if (dashboardHeader && !document.querySelector('.readonly-badge')) {
+                    const badge = document.createElement('span');
+                    badge.className = 'readonly-badge';
+                    badge.style.cssText = 'background: #ea580c; color: white; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; margin-left: 1rem;';
+                    badge.innerHTML = '<i class="fas fa-eye"></i> Read-Only Mode';
+                    dashboardHeader.appendChild(badge);
+                }
+
+                this.showToast('Your trial has ended. You are now in read-only mode. Upgrade to continue adding/editing.', 'warning');
+            }
+
+            activateFullBlocker() {
+                // Completely block access to everything
+                const appContent = document.querySelector('.app-content');
+                if (appContent) {
+                    appContent.style.pointerEvents = 'none';
+                    appContent.style.opacity = '0.3';
+                }
+
+                const appHeader = document.querySelector('.app-header');
+                if (appHeader) {
+                    appHeader.style.pointerEvents = 'none';
+                    appHeader.style.opacity = '0.3';
+                }
+
+                // Disable all buttons and inputs
+                document.querySelectorAll('button, input, select, textarea, .nav-btn').forEach(el => {
+                    el.disabled = true;
+                    el.style.pointerEvents = 'none';
+                });
+            }
+
+            removeTrialRestrictions() {
+                // Remove grace period notification
+                const notification = document.getElementById('grace-period-notification');
+                if (notification) notification.remove();
+
+                // Remove expired modal
+                this.removeExpiredModal();
+
+                // Re-enable all buttons
+                document.querySelectorAll('.btn-info, .btn-edit, .btn-primary, [onclick*="showEditEnquiryModal"], [onclick*="showAddInventoryModal"], [onclick*="showAddTeamModal"]').forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.opacity = '';
+                    btn.style.cursor = '';
+                });
+
+                // Re-enable selects
+                document.querySelectorAll('#enquiry-status, .status-update').forEach(select => {
+                    select.disabled = false;
+                });
+
+                // Re-enable form inputs
+                document.querySelectorAll('#enquiry-form input, #enquiry-form select, #enquiry-form textarea').forEach(input => {
+                    input.disabled = false;
+                });
+
+                // Remove read-only badge
+                const badge = document.querySelector('.readonly-badge');
+                if (badge) badge.remove();
+
+                // Restore app content
+                const appContent = document.querySelector('.app-content');
+                if (appContent) {
+                    appContent.style.pointerEvents = '';
+                    appContent.style.opacity = '';
+                }
+
+                const appHeader = document.querySelector('.app-header');
+                if (appHeader) {
+                    appHeader.style.pointerEvents = '';
+                    appHeader.style.opacity = '';
+                }
+            }
+
+            showTrialExpiredPrompt() {
+                // Create a modal-like prompt that doesn't block everything
+                const existingPrompt = document.getElementById('trial-expired-prompt');
+                if (existingPrompt) return;
+
+                const promptHTML = `
+        <div id="trial-expired-prompt" style="
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            z-index: 100000;
+            box-shadow: var(--shadow-xl);
+            border: 2px solid var(--danger);
+        ">
+            <div style="width: 80px; height: 80px; background: rgba(231, 29, 54, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="fas fa-hourglass-end" style="font-size: 3rem; color: var(--danger);"></i>
+            </div>
+            <h2 style="color: var(--danger); margin-bottom: 1rem;">Trial Period Ended</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Your 30-day free trial has expired. Please upgrade to continue using ShowroomDesk.</p>
+            <button id="upgrade-from-prompt" class="btn-upgrade" style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                padding: 0.75rem 2rem;
+                font-size: 1rem;
+                font-weight: 600;
+                border-radius: var(--radius-full);
+                cursor: pointer;
+            ">
+                <i class="fas fa-crown"></i> Upgrade Now
+            </button>
+            <button id="close-prompt" style="
+                background: none;
+                border: none;
+                color: var(--text-light);
+                margin-top: 1rem;
+                cursor: pointer;
+                display: block;
+                width: 100%;
+                font-size: 0.875rem;
+            ">Close</button>
+        </div>
+        <div id="trial-expired-overlay-bg" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99999;
+        "></div>
+    `;
+
+                document.body.insertAdjacentHTML('beforeend', promptHTML);
+
+                // Handle upgrade button click
+                const upgradeBtn = document.getElementById('upgrade-from-prompt');
+                if (upgradeBtn) {
+                    upgradeBtn.onclick = () => {
+                        this.removeTrialPrompt();
+                        this.showUpgradeModal();
+                    };
+                }
+
+                // Handle close button
+                const closeBtn = document.getElementById('close-prompt');
+                if (closeBtn) {
+                    closeBtn.onclick = () => {
+                        this.removeTrialPrompt();
+                    };
+                }
+            }
+
+            removeTrialPrompt() {
+                const prompt = document.getElementById('trial-expired-prompt');
+                const overlay = document.getElementById('trial-expired-overlay-bg');
+                if (prompt) prompt.remove();
+                if (overlay) overlay.remove();
+            }
+
+            showTrialEndingWarning(daysLeft) {
+                // Show a non-blocking warning toast
+                this.showToast(`⚠️ Your trial ends in ${daysLeft} days! Upgrade now to avoid interruption.`, 'warning');
+
+                // Update subscription banner to show warning
+                const statusEl = document.getElementById('subscription-status');
+                if (statusEl) {
+                    statusEl.innerHTML = `<i class="fas fa-exclamation-triangle" style="color: var(--danger);"></i> Trial ends in ${daysLeft} days!`;
+                }
+            }
+
+            // activateTrialBlocker() {
+            //     // Show the overlay
+            //     const overlay = document.getElementById('trial-expired-overlay');
+            //     if (overlay) {
+            //         overlay.classList.add('active');
+            //     }
+
+            //     // Add blocker class to main app content
+            //     const appContent = document.querySelector('.app-content');
+            //     if (appContent) {
+            //         appContent.classList.add('trial-blocked');
+            //     }
+
+            //     // Add blocker to header and navigation
+            //     const appHeader = document.querySelector('.app-header');
+            //     if (appHeader) {
+            //         appHeader.style.pointerEvents = 'none';
+            //         appHeader.style.opacity = '0.3';
+            //     }
+
+            //     // Block all interactive elements EXCEPT the upgrade button in overlay
+            //     const allButtons = document.querySelectorAll('.nav-btn, .btn, .user-profile, .nav-btn, .dropdown-item, .btn-upgrade');
+            //     allButtons.forEach(btn => {
+            //         // Don't block the upgrade button inside the trial overlay
+            //         if (!btn.closest('#trial-expired-overlay')) {
+            //             btn.style.pointerEvents = 'none';
+            //         }
+            //     });
+
+            //     // Block table rows
+            //     const allRows = document.querySelectorAll('.data-table tbody tr, .followup-item, .intervention-item');
+            //     allRows.forEach(row => {
+            //         row.style.pointerEvents = 'none';
+            //     });
+
+            //     // Block form inputs
+            //     const allInputs = document.querySelectorAll('input, select, textarea');
+            //     allInputs.forEach(input => {
+            //         input.disabled = true;
+            //     });
+
+            //     // Make sure the upgrade button in overlay works
+            //     const upgradeBtn = document.getElementById('trial-upgrade-btn');
+            //     if (upgradeBtn) {
+            //         upgradeBtn.style.pointerEvents = 'auto';
+            //         upgradeBtn.style.cursor = 'pointer';
+            //         // Remove any existing listeners and add new one
+            //         upgradeBtn.removeEventListener('click', this.handleTrialUpgrade);
+            //         upgradeBtn.addEventListener('click', () => this.handleTrialUpgrade());
+            //     }
+
+            //     this.showToast('Trial period ended. Please upgrade to continue using ShowroomDesk.', 'warning');
+            // }
+
+            handleTrialUpgrade() {
+                console.log('Trial upgrade button clicked');
+
+                // First, temporarily remove blocker to allow interaction
+                const overlay = document.getElementById('trial-expired-overlay');
+
+                // Hide overlay temporarily
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
+
+                // Show upgrade modal
+                this.showUpgradeModal();
+
+                // After modal is closed, check if upgrade was successful
+                const checkInterval = setInterval(() => {
+                    if (this.showroomData && this.showroomData.subscription) {
+                        const isPaid = this.showroomData.subscription.planType === 'paid' ||
+                            this.showroomData.subscription.paymentStatus === 'paid';
+
+                        if (isPaid) {
+                            // Upgrade successful, remove blocker permanently
+                            clearInterval(checkInterval);
+                            this.removeTrialBlocker();
+                        } else {
+                            // Still not upgraded, show overlay again when modal closes
+                            const modal = document.getElementById('upgrade-modal');
+                            if (modal && !modal.classList.contains('active')) {
+                                if (overlay && !overlay.classList.contains('active')) {
+                                    overlay.classList.add('active');
+                                }
+                                clearInterval(checkInterval);
+                            }
+                        }
+                    }
+                }, 1000);
+            }
+
+            closeTrialOverlayAndUpgrade() {
+                console.log('Closing trial overlay and showing upgrade modal');
+
+                // Close the overlay
+                const overlay = document.getElementById('trial-expired-overlay');
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
+
+                // Show upgrade modal
+                this.showUpgradeModal();
+            }
+
+            removeTrialBlocker() {
+                // Hide the overlay
+                const overlay = document.getElementById('trial-expired-overlay');
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
+
+                // Remove blocker class from main app content
+                const appContent = document.querySelector('.app-content');
+                if (appContent) {
+                    appContent.classList.remove('trial-blocked');
+                }
+
+                // Restore header
+                const appHeader = document.querySelector('.app-header');
+                if (appHeader) {
+                    appHeader.style.pointerEvents = '';
+                    appHeader.style.opacity = '';
+                }
+
+                // Re-enable all interactive elements
+                const allButtons = document.querySelectorAll('.nav-btn, .btn, .user-profile, .nav-btn, .dropdown-item, .btn-upgrade');
+                allButtons.forEach(btn => {
+                    btn.style.pointerEvents = '';
+                });
+
+                // Re-enable table rows
+                const allRows = document.querySelectorAll('.data-table tbody tr, .followup-item, .intervention-item');
+                allRows.forEach(row => {
+                    row.style.pointerEvents = '';
+                });
+
+                // Re-enable form inputs
+                const allInputs = document.querySelectorAll('input, select, textarea');
+                allInputs.forEach(input => {
+                    input.disabled = false;
+                });
             }
 
             // Add this new method to update upgrade button text
@@ -4826,36 +6328,61 @@
             }
 
             showUpgradeModal() {
-                document.getElementById('upgrade-modal').classList.add('active');
-                this.upgradePaymentMethod = 'razorpay';
-                document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
-                document.querySelector('.payment-method[data-method="razorpay"]').classList.add('selected');
-                document.getElementById('upgrade-bank-details').style.display = 'none';
-
-                // Add trial info to modal if applicable
-                if (this.showroomData?.subscription?.status === 'trial') {
-                    const endDate = new Date(this.showroomData.subscription.endDate);
-                    const today = new Date();
-                    const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
-
-                    if (daysLeft > 0) {
-                        const modalHeader = document.querySelector('#upgrade-modal .modal-header h3');
-
-                        // Add a small badge next to the title
-                        const badge = document.createElement('span');
-                        badge.className = 'status-badge status-new';
-                        badge.style.marginLeft = '10px';
-                        badge.style.fontSize = '0.8rem';
-                        badge.textContent = `${daysLeft} trial days remaining`;
-
-                        // Remove existing badge if any
-                        const existingBadge = modalHeader.querySelector('.trial-badge');
-                        if (existingBadge) existingBadge.remove();
-
-                        badge.classList.add('trial-badge');
-                        modalHeader.appendChild(badge);
-                    }
+                // Store that user came from trial expired state
+                if (this.isTrialFullyExpired()) {
+                    this.isComingFromTrialBlock = true;
                 }
+
+                const modal = document.getElementById('upgrade-modal');
+                if (modal) {
+                    modal.classList.add('active');
+                    this.upgradePaymentMethod = 'razorpay';
+
+                    // Reset payment method selection
+                    const razorpayOption = document.querySelector('.payment-method[data-method="razorpay"]');
+                    if (razorpayOption) {
+                        document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+                        razorpayOption.classList.add('selected');
+                    }
+                    const bankDetails = document.getElementById('upgrade-bank-details');
+                    if (bankDetails) bankDetails.style.display = 'none';
+
+                    // Add listener for modal close
+                    const closeHandler = () => {
+                        this.checkAndReapplyBlocker();
+                    };
+
+                    // Remove existing listener and add new one
+                    const closeBtn = modal.querySelector('.modal-close');
+                    if (closeBtn) {
+                        closeBtn.removeEventListener('click', closeHandler);
+                        closeBtn.addEventListener('click', closeHandler);
+                    }
+
+                    // Also handle clicking on overlay
+                    const overlay = modal;
+                    overlay.removeEventListener('click', this.handleOverlayClick);
+                    this.handleOverlayClick = (e) => {
+                        if (e.target === overlay) {
+                            this.checkAndReapplyBlocker();
+                        }
+                    };
+                    overlay.addEventListener('click', this.handleOverlayClick);
+
+                } else {
+                    console.error('Upgrade modal not found');
+                    this.showToast('Upgrade feature is being loaded. Please try again.', 'error');
+                }
+            }
+
+            checkAndReapplyBlocker() {
+                // Check if trial is still expired
+                if (this.isTrialFullyExpired()) {
+                    // Re-apply the blocker
+                    this.showTrialExpiredBlockScreen();
+                    this.showToast('Please complete the upgrade process to continue using ShowroomDesk.', 'warning');
+                }
+                this.isComingFromTrialBlock = false;
             }
 
             showRenewModal() {
@@ -4867,10 +6394,17 @@
             }
 
             closeUpgradeModal() {
-                document.getElementById('upgrade-modal').classList.remove('active');
-                // Remove the trial badge when closing
+                const modal = document.getElementById('upgrade-modal');
+                if (modal) {
+                    modal.classList.remove('active');
+                }
+
+                // Remove the trial badge if exists
                 const badge = document.querySelector('#upgrade-modal .modal-header .trial-badge');
                 if (badge) badge.remove();
+
+                // Reapply blocker if trial is still expired
+                this.checkAndReapplyBlocker();
             }
 
             selectUpgradePaymentMethod(method) {
@@ -4898,7 +6432,7 @@
                 try {
                     const options = {
                         key: this.RAZORPAY_KEY_ID,
-                        amount: 10999, // ₹10,999 in paise
+                        amount: 1099900,
                         currency: 'INR',
                         name: 'ShowroomDesk',
                         description: 'Annual Subscription - Complete Plan (₹10,999/year)',
@@ -4913,6 +6447,8 @@
 
                             await window.firebase.updateDoc(userRef, {
                                 'subscription.status': 'active',
+                                'subscription.planType': 'paid',
+                                'subscription.paymentStatus': 'paid',
                                 'subscription.paymentId': response.razorpay_payment_id,
                                 'subscription.paidAt': new Date().toISOString(),
                                 'subscription.endDate': endDate.toISOString(),
@@ -4921,13 +6457,23 @@
 
                             // Update local data
                             this.showroomData.subscription.status = 'active';
-                            this.showroomData.subscription.paymentId = response.razorpay_payment_id;
-                            this.showroomData.subscription.paidAt = new Date().toISOString();
+                            this.showroomData.subscription.planType = 'paid';
+                            this.showroomData.subscription.paymentStatus = 'paid';
                             this.showroomData.subscription.endDate = endDate.toISOString();
 
-                            this.updateSubscriptionDisplay();
+                            // REMOVE TRIAL BLOCKER AFTER SUCCESSFUL UPGRADE
+                            this.removeTrialBlockerScreen();
+
+                            // Close upgrade modal
                             this.closeUpgradeModal();
+
+                            // Show success message
                             this.showToast('Upgrade successful! Thank you for your payment.', 'success');
+
+                            // Refresh the page to ensure all features are unlocked
+                            setTimeout(() => {
+                                location.reload();
+                            }, 2000);
                         },
                         prefill: {
                             name: this.showroomData?.ownerName || this.currentUser?.email,
@@ -4944,6 +6490,9 @@
                         modal: {
                             ondismiss: () => {
                                 this.showLoading(false);
+                                // CRITICAL: Reapply blocker when user cancels payment
+                                this.checkAndReapplyBlocker();
+                                this.showToast('Payment cancelled. Please complete payment to continue using ShowroomDesk.', 'warning');
                             }
                         }
                     };
@@ -4955,12 +6504,16 @@
                         console.error('Payment failed:', response.error);
                         this.showToast('Payment failed: ' + response.error.description, 'error');
                         this.showLoading(false);
+                        // Reapply blocker on payment failure
+                        this.checkAndReapplyBlocker();
                     });
 
                 } catch (error) {
                     console.error('Razorpay error:', error);
                     this.showToast('Unable to process payment. Please try again.', 'error');
                     this.showLoading(false);
+                    // Reapply blocker on error
+                    this.checkAndReapplyBlocker();
                 }
             }
 
@@ -5518,6 +7071,8 @@
 
             // In your main app (showroomdesk.in) - UPDATE THIS FUNCTION
             async loadUserData(user) {
+
+
                 try {
                     // Force token refresh to ensure proper permissions
                     const token = await user.getIdToken(true);
@@ -5567,6 +7122,8 @@
                                 endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
                             }
                         };
+
+                        this.blockIfTrialFullyExpired();
 
                         // Store user data in localStorage for backup (optional)
                         try {
@@ -5630,6 +7187,8 @@
 
                         // Update subscription display
                         this.updateSubscriptionDisplay();
+
+                        this.checkTrialExpiration();
                     } else {
                         console.error('User document not found');
                         this.showToast('User data not found. Please contact support.', 'error');
@@ -5700,6 +7259,10 @@
                     // Preload inventory in background
                     this.preloadInventory();
 
+                    // next 10 days 
+                    this.loadNext10Days();
+
+
                     // Load Today's Hold data (only for owner)
                     if (this.userRole === 'owner') {
                         await this.loadTodayHold();
@@ -5757,6 +7320,8 @@
 
                     console.log('Enquiries loaded:', this.enquiries.length);
                     console.log('Interventions pending:', interventionsCount);
+
+                    this.loadNext10Days();
 
                 } catch (error) {
                     console.error('Error loading enquiries:', error);
@@ -5905,6 +7470,468 @@
                     });
                     topSales.innerHTML = html;
                 }
+            }
+
+            // ==========================================================================
+            // Next 10 Days Follow-up Feature
+            // ==========================================================================
+
+            // ==========================================================================
+            // Next 10 Days Follow-up Feature - Day-wise View
+            // ==========================================================================
+
+            loadNext10Days() {
+                const today = new Date();
+                const next10Days = new Date();
+                next10Days.setDate(today.getDate() + 10);
+
+                // Update date range display
+                const rangeSpan = document.getElementById('next-10-days-range');
+                if (rangeSpan) {
+                    rangeSpan.textContent = `${today.toLocaleDateString()} - ${next10Days.toLocaleDateString()}`;
+                }
+
+                // Group enquiries by date
+                const dayWiseData = {};
+
+                // Initialize days 0-10 (0 = today)
+                for (let i = 0; i <= 10; i++) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() + i);
+                    const dateKey = date.toISOString().split('T')[0];
+                    dayWiseData[dateKey] = {
+                        date: date,
+                        enquiries: [],
+                        count: 0
+                    };
+                }
+
+                // Filter and group enquiries
+                this.enquiries.forEach(enquiry => {
+                    if (!enquiry.followupDate) return;
+                    if (enquiry.status === 'closed' || enquiry.status === 'lost') return;
+
+                    const followupDate = new Date(enquiry.followupDate);
+                    const followupDateKey = followupDate.toISOString().split('T')[0];
+
+                    // Check if within next 10 days (including today)
+                    const daysDiff = Math.ceil((followupDate - today) / (1000 * 60 * 60 * 24));
+                    if (daysDiff >= 0 && daysDiff <= 10 && dayWiseData[followupDateKey]) {
+                        dayWiseData[followupDateKey].enquiries.push(enquiry);
+                        dayWiseData[followupDateKey].count++;
+                    }
+                });
+
+                // Calculate statistics
+                const totalUpcoming = Object.values(dayWiseData).reduce((sum, day) => sum + day.count, 0);
+                const todayCount = dayWiseData[today.toISOString().split('T')[0]]?.count || 0;
+
+                // Next 3 days count (excluding today)
+                let next3DaysCount = 0;
+                for (let i = 1; i <= 3; i++) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() + i);
+                    const dateKey = date.toISOString().split('T')[0];
+                    next3DaysCount += dayWiseData[dateKey]?.count || 0;
+                }
+
+                const activeCount = this.enquiries.filter(e => e.status !== 'closed' && e.status !== 'lost').length;
+
+                // Update stats display
+                document.getElementById('upcoming-count').textContent = totalUpcoming;
+                document.getElementById('today-count').textContent = todayCount;
+                document.getElementById('priority-count').textContent = next3DaysCount;
+                document.getElementById('active-count').textContent = activeCount;
+
+                // Update badge
+                const badge = document.getElementById('next-10-days-badge');
+                if (badge) badge.textContent = totalUpcoming;
+
+                // Render day-wise accordion
+                this.renderDayWiseAccordion(dayWiseData, today);
+            }
+
+            renderDayWiseAccordion(dayWiseData, today) {
+                const container = document.getElementById('day-wise-container');
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                // Sort days
+                const sortedDays = Object.keys(dayWiseData).sort();
+
+                sortedDays.forEach((dateKey, index) => {
+                    const dayData = dayWiseData[dateKey];
+                    const displayDate = new Date(dateKey);
+                    const daysDiff = Math.ceil((displayDate - today) / (1000 * 60 * 60 * 24));
+
+                    // Skip empty days (optional - comment out to show all days)
+                    if (dayData.count === 0 && daysDiff > 3) return;
+
+                    // Determine day label
+                    let dayLabel = '';
+                    let isToday = false;
+
+                    if (daysDiff === 0) {
+                        dayLabel = 'Today';
+                        isToday = true;
+                    } else if (daysDiff === 1) {
+                        dayLabel = 'Tomorrow';
+                    } else {
+                        dayLabel = displayDate.toLocaleDateString('en-IN', { weekday: 'long' });
+                    }
+
+                    // Determine urgency styling
+                    let urgentCount = 0;
+                    if (daysDiff <= 3 && daysDiff > 0) {
+                        urgentCount = dayData.count;
+                    }
+
+                    const accordionId = `day-${index}`;
+
+                    // Create accordion HTML
+                    const accordionHTML = `
+            <div class="day-accordion" id="accordion-${accordionId}">
+                <div class="day-header" onclick="app.toggleDay('${accordionId}')">
+                    <div class="day-title">
+                        <div class="day-name">${dayLabel}</div>
+                        <div class="day-date">${displayDate.toLocaleDateString()}</div>
+                    </div>
+                    <div class="day-stats">
+                        ${urgentCount > 0 ? `<span class="day-urgent-count">⚠️ ${urgentCount} urgent</span>` : ''}
+                        <span class="day-count">${dayData.count} follow-up${dayData.count !== 1 ? 's' : ''}</span>
+                        <i class="fas fa-chevron-down day-arrow"></i>
+                    </div>
+                </div>
+                <div class="day-content" id="content-${accordionId}">
+                    ${this.renderDayTable(dayData.enquiries, daysDiff, isToday)}
+                </div>
+            </div>
+        `;
+
+                    container.insertAdjacentHTML('beforeend', accordionHTML);
+
+                    // Auto-expand today and days with enquiries
+                    if (isToday || dayData.count > 0) {
+                        setTimeout(() => {
+                            const content = document.getElementById(`content-${accordionId}`);
+                            const header = document.querySelector(`#accordion-${accordionId} .day-header`);
+                            if (content && header && !content.classList.contains('active')) {
+                                content.classList.add('active');
+                                header.classList.add('active');
+                            }
+                        }, 100);
+                    }
+                });
+            }
+
+            renderDayTable(enquiries, daysDiff, isToday) {
+                if (enquiries.length === 0) {
+                    return '<div class="empty-day">No follow-ups scheduled for this day</div>';
+                }
+
+                // Sort enquiries by time if available
+                enquiries.sort((a, b) => {
+                    return (a.followupTime || '').localeCompare(b.followupTime || '');
+                });
+
+                let tableHTML = `
+        <table class="day-table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Phone</th>
+                    <th>Model</th>
+                    <th>Status</th>
+                    <th>Remarks</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+                enquiries.forEach(enquiry => {
+                    const statusClass = `status-${enquiry.status || 'new'}`;
+                    const vehicleDisplay = enquiry.isExchange ?
+                        `🔄 ${enquiry.exchangeModel || 'Exchange'}` :
+                        (enquiry.vehicleModel || 'N/A');
+
+                    tableHTML += `
+            <tr>
+                <td><strong>${enquiry.customerName || 'Unknown'}</strong></td>
+                <td>${enquiry.phone || 'N/A'}</td>
+                <td><small>${vehicleDisplay}</small></td>
+                <td><span class="status-badge ${statusClass}">${enquiry.status || 'new'}</span></td>
+                <td><small title="${enquiry.remarks || ''}">${(enquiry.remarks || '').substring(0, 30)}${(enquiry.remarks || '').length > 30 ? '...' : ''}</small></td>
+                <td>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.viewEnquiry('${enquiry.id}')" title="View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-info" onclick="event.stopPropagation(); app.showEditEnquiryModal('${enquiry.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        ${isToday ? `
+                            <button class="btn btn-sm btn-success" onclick="event.stopPropagation(); app.quickCompleteFollowup('${enquiry.id}')" title="Mark Completed">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+                });
+
+                tableHTML += `
+            </tbody>
+        </table>
+    `;
+
+                return tableHTML;
+            }
+
+            // Method to toggle day accordion
+            toggleDay(accordionId) {
+                const content = document.getElementById(`content-${accordionId}`);
+                const header = document.querySelector(`#accordion-${accordionId} .day-header`);
+
+                if (content && header) {
+                    content.classList.toggle('active');
+                    header.classList.toggle('active');
+                }
+            }
+
+            // Quick method to mark today's follow-up as completed
+            async quickCompleteFollowup(enquiryId) {
+                const enquiry = this.enquiries.find(e => e.id === enquiryId);
+                if (!enquiry) return;
+
+                if (confirm(`Mark follow-up for ${enquiry.customerName} as completed?`)) {
+                    try {
+                        const enquiryRef = window.firebase.doc(window.firebase.db, 'enquiries', enquiryId);
+                        await window.firebase.updateDoc(enquiryRef, {
+                            status: 'followup', // Keep as follow-up or change as needed
+                            lastFollowupCompleted: new Date().toISOString(),
+                            updatedAt: new Date().toISOString()
+                        });
+
+                        this.showToast(`Follow-up marked for ${enquiry.customerName}`, 'success');
+                        this.loadNext10Days(); // Refresh the view
+                        this.updateDashboard();
+
+                    } catch (error) {
+                        console.error('Error marking follow-up:', error);
+                        this.showToast('Error marking follow-up', 'error');
+                    }
+                }
+            }
+
+            refreshNext10Days() {
+                this.loadNext10Days();
+                this.showToast('Next 10 days schedule refreshed!', 'success');
+            }
+
+            renderNext10DaysTable(upcomingEnquiries) {
+                const tbody = document.getElementById('next-10-days-list');
+                if (!tbody) return;
+
+                const today = new Date();
+
+                tbody.innerHTML = '';
+
+                if (upcomingEnquiries.length === 0) {
+                    tbody.innerHTML = '<td><td colspan="9" class="text-center py-4">No follow-ups scheduled in next 10 days</td></tr>';
+                    return;
+                }
+
+                upcomingEnquiries.forEach(enquiry => {
+                    const followupDate = new Date(enquiry.followupDate);
+                    const daysLeft = Math.ceil((followupDate - today) / (1000 * 60 * 60 * 24));
+
+                    // Determine urgency class
+                    let daysClass = '';
+                    let daysText = '';
+                    if (daysLeft <= 0) {
+                        daysClass = 'urgent-badge';
+                        daysText = 'Today!';
+                    } else if (daysLeft === 1) {
+                        daysClass = 'urgent-badge';
+                        daysText = 'Tomorrow';
+                    } else if (daysLeft <= 3) {
+                        daysClass = 'urgent-badge';
+                        daysText = `${daysLeft} days`;
+                    } else if (daysLeft <= 7) {
+                        daysClass = 'soon-badge';
+                        daysText = `${daysLeft} days`;
+                    } else {
+                        daysClass = 'normal-badge';
+                        daysText = `${daysLeft} days`;
+                    }
+
+                    const row = document.createElement('tr');
+                    row.id = `enquiry-row-${enquiry.id}`;
+
+                    // Get vehicle display
+                    const vehicleDisplay = enquiry.isExchange ?
+                        `Exchange: ${enquiry.exchangeModel || ''}` :
+                        (enquiry.vehicleModel || 'N/A');
+
+                    row.innerHTML = `
+            <td><strong>${enquiry.customerName || 'Unknown'}</strong>${enquiry.isExchange ? '<br><small class="text-muted">🔄 Exchange</small>' : ''}</td>
+            <td>${enquiry.phone || 'N/A'}</td>
+            <td>${vehicleDisplay}</td>
+            <td>
+                <input type="date" id="date-${enquiry.id}" value="${enquiry.followupDate || ''}" 
+                       class="form-control" style="width: 130px; font-size: 0.8rem;"
+                       onchange="app.quickUpdateFollowup('${enquiry.id}', this.value)">
+            </td>
+            <td><span class="status-badge ${daysClass}">${daysText}</span></td>
+            <td>
+                <select id="status-${enquiry.id}" class="form-control" style="width: 120px; font-size: 0.8rem;"
+                        onchange="app.quickUpdateStatus('${enquiry.id}', this.value)">
+                    <option value="new" ${enquiry.status === 'new' ? 'selected' : ''}>New</option>
+                    <option value="followup" ${enquiry.status === 'followup' ? 'selected' : ''}>Follow-up</option>
+                    <option value="hot" ${enquiry.status === 'hot' ? 'selected' : ''}>Hot</option>
+                    <option value="booking" ${enquiry.status === 'booking' ? 'selected' : ''}>Booking</option>
+                    <option value="closed" ${enquiry.status === 'closed' ? 'selected' : ''}>Closed</option>
+                    <option value="lost" ${enquiry.status === 'lost' ? 'selected' : ''}>Lost</option>
+                </select>
+             </td>
+            <td>
+                <textarea id="remarks-${enquiry.id}" rows="2" style="width: 100%; font-size: 0.75rem; padding: 0.25rem;"
+                          placeholder="Add remarks..." onblur="app.quickUpdateRemarks('${enquiry.id}', this.value)">${enquiry.remarks || ''}</textarea>
+             </td>
+            <td>${enquiry.salesManagerName || 'Unassigned'}</td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="app.viewEnquiry('${enquiry.id}')" title="View Details">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-info" onclick="app.showEditEnquiryModal('${enquiry.id}')" title="Full Edit">
+                    <i class="fas fa-edit"></i>
+                </button>
+             </td>
+        `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Quick update methods for inline editing
+            async quickUpdateFollowup(enquiryId, newDate) {
+                if (this.blockIfTrialExpired()) return;
+                if (!newDate) return;
+
+                const enquiry = this.enquiries.find(e => e.id === enquiryId);
+                if (!enquiry) return;
+
+                const oldDate = enquiry.followupDate;
+
+                try {
+                    const enquiryRef = window.firebase.doc(window.firebase.db, 'enquiries', enquiryId);
+                    await window.firebase.updateDoc(enquiryRef, {
+                        followupDate: newDate,
+                        updatedAt: new Date().toISOString()
+                    });
+
+                    // Update local data
+                    enquiry.followupDate = newDate;
+
+                    this.showToast(`Follow-up date updated for ${enquiry.customerName}`, 'success');
+
+                    // Refresh the view
+                    this.loadNext10Days();
+                    this.updateDashboard();
+
+                } catch (error) {
+                    console.error('Error updating follow-up date:', error);
+                    this.showToast('Error updating date', 'error');
+                }
+            }
+
+            async quickUpdateStatus(enquiryId, newStatus) {
+                if (this.blockIfTrialExpired()) return;
+                const enquiry = this.enquiries.find(e => e.id === enquiryId);
+                if (!enquiry) return;
+
+                try {
+                    const enquiryRef = window.firebase.doc(window.firebase.db, 'enquiries', enquiryId);
+                    await window.firebase.updateDoc(enquiryRef, {
+                        status: newStatus,
+                        updatedAt: new Date().toISOString()
+                    });
+
+                    // If status is booking, prompt for amount
+                    if (newStatus === 'booking') {
+                        const amount = prompt(`Enter booking amount for ${enquiry.customerName}:`, enquiry.bookingAmount || '');
+                        if (amount && !isNaN(amount)) {
+                            await window.firebase.updateDoc(enquiryRef, {
+                                bookingAmount: parseFloat(amount),
+                                bookingDate: new Date().toISOString()
+                            });
+                            enquiry.bookingAmount = parseFloat(amount);
+                        }
+                    }
+
+                    // Update local data
+                    enquiry.status = newStatus;
+
+                    this.showToast(`Status updated to ${newStatus} for ${enquiry.customerName}`, 'success');
+
+                    // Refresh the view
+                    this.loadNext10Days();
+                    this.updateDashboard();
+                    this.filterEnquiries();
+
+                } catch (error) {
+                    console.error('Error updating status:', error);
+                    this.showToast('Error updating status', 'error');
+                }
+            }
+
+            async quickUpdateRemarks(enquiryId, newRemarks) {
+                if (this.blockIfTrialExpired()) return;
+                const enquiry = this.enquiries.find(e => e.id === enquiryId);
+                if (!enquiry) return;
+
+                const oldRemarks = enquiry.remarks || '';
+
+                if (newRemarks === oldRemarks) return;
+
+                try {
+                    const enquiryRef = window.firebase.doc(window.firebase.db, 'enquiries', enquiryId);
+                    await window.firebase.updateDoc(enquiryRef, {
+                        remarks: newRemarks,
+                        updatedAt: new Date().toISOString()
+                    });
+
+                    // Save to remarks history
+                    try {
+                        const historyRef = window.firebase.collection(window.firebase.db, 'enquiries', enquiryId, 'remarksHistory');
+                        await window.firebase.addDoc(historyRef, {
+                            oldRemarks: oldRemarks,
+                            newRemarks: newRemarks,
+                            changedBy: document.getElementById('user-name').textContent,
+                            changedByUid: this.currentUser?.uid,
+                            timestamp: new Date().toISOString(),
+                            changeType: 'quick_update'
+                        });
+                    } catch (historyError) {
+                        console.error('Error saving history:', historyError);
+                    }
+
+                    // Update local data
+                    enquiry.remarks = newRemarks;
+
+                    this.showToast(`Remarks updated for ${enquiry.customerName}`, 'success');
+
+                } catch (error) {
+                    console.error('Error updating remarks:', error);
+                    this.showToast('Error updating remarks', 'error');
+                }
+            }
+
+            refreshNext10Days() {
+                this.loadNext10Days();
+                this.showToast('Next 10 days schedule refreshed!', 'success');
             }
 
             renderEnquiriesTable() {
@@ -6676,6 +8703,12 @@
             }
 
             async saveInventory() {
+                if (this.blockIfTrialExpired()) return;
+                const status = this.getTrialStatus();
+                if (status.status === 'grace') {
+                    this.showToast(`⚠️ Grace period active (${status.daysLeft} days left). Please upgrade to add new enquiries.`, 'warning');
+                    return;
+                }
                 const type = document.getElementById('inventory-type').value;
                 const brand = document.getElementById('inventory-brand').value.trim();
                 const model = document.getElementById('inventory-model').value.trim();
@@ -6958,6 +8991,12 @@
             }
 
             async saveTeamMember() {
+                if (this.blockIfTrialExpired()) return;
+                const status = this.getTrialStatus();
+                if (status.status === 'grace') {
+                    this.showToast(`⚠️ Grace period active (${status.daysLeft} days left). Please upgrade to add new enquiries.`, 'warning');
+                    return;
+                }
                 const name = document.getElementById('team-name').value.trim();
                 const email = document.getElementById('team-email').value.trim();
                 const phone = document.getElementById('team-phone').value.trim();
@@ -7172,6 +9211,13 @@
             async saveEnquiry(e) {
                 e.preventDefault();
 
+                if (this.blockIfTrialExpired()) return;
+                const status2 = this.getTrialStatus();
+                if (status2.status === 'grace') {
+                    this.showToast(`⚠️ Grace period active (${status.daysLeft} days left). Please upgrade to add new enquiries.`, 'warning');
+                    return;
+                }
+
                 const isExchange = document.querySelector('input[name="is-exchange"]:checked')?.value === 'yes';
                 const source = document.getElementById('enquiry-source').value;
                 const status = document.getElementById('enquiry-status').value;
@@ -7376,6 +9422,12 @@
             }
 
             async saveIntervention() {
+                if (this.blockIfTrialExpired()) return;
+                const status = this.getTrialStatus();
+                if (status.status === 'grace') {
+                    this.showToast(`⚠️ Grace period active (${status.daysLeft} days left). Please upgrade to add new enquiries.`, 'warning');
+                    return;
+                }
                 const enquiryId = document.getElementById('intervention-enquiry').value;
                 const priority = document.getElementById('intervention-priority').value;
                 const message = document.getElementById('intervention-message').value;
@@ -8046,6 +10098,22 @@
         // Initialize app
         window.app = new ShowroomDeskCRM();
     </script>
+    <!-- Trial Expiration Overlay -->
+    <!-- Trial Expiration Overlay -->
+    <div id="trial-expired-overlay" class="trial-expired-overlay">
+        <div class="trial-expired-modal">
+            <div class="trial-expired-icon">
+                <i class="fas fa-hourglass-end"></i>
+            </div>
+            <h2>Trial Period Ended</h2>
+            <p>Your 30-day free trial has expired. To continue using ShowroomDesk and access all features, please
+                upgrade to the premium plan.</p>
+            <button class="btn-upgrade" id="trial-upgrade-btn">
+                <i class="fas fa-crown"></i> Upgrade to Premium
+            </button>
+            <div class="expiry-date" id="trial-expiry-date"></div>
+        </div>
+    </div>
 </body>
 
-</html>0
+</html>
