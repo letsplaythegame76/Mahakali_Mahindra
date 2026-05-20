@@ -2481,6 +2481,547 @@
             pointer-events: none;
             opacity: 0.3;
         }
+
+        /* ==========================================================================
+   Mobile Responsive Fixes - Add at the end of your style section
+   ========================================================================== */
+
+/* Mobile viewport meta already exists, now fix layouts */
+
+@media (max-width: 768px) {
+    /* Header adjustments */
+    .app-header {
+        padding: 0.75rem;
+    }
+    
+    .header-container {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .logo {
+        justify-content: center;
+        width: 100%;
+    }
+    
+    .logo-text h1 {
+        font-size: 1rem;
+    }
+    
+    /* Navigation - Make it scrollable horizontally */
+    .main-nav {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        gap: 0.25rem;
+        padding: 0.5rem 0;
+        width: 100%;
+        flex-wrap: nowrap;
+    }
+    
+    .main-nav::-webkit-scrollbar {
+        height: 3px;
+    }
+    
+    .main-nav::-webkit-scrollbar-track {
+        background: var(--border-light);
+        border-radius: 10px;
+    }
+    
+    .main-nav::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+    }
+    
+    .nav-btn {
+        flex: 0 0 auto;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.7rem;
+        white-space: nowrap;
+    }
+    
+    .nav-btn .nav-text {
+        display: inline-block;
+    }
+    
+    .nav-badge {
+        position: static;
+        margin-left: 0.25rem;
+        font-size: 0.6rem;
+        padding: 0.125rem 0.375rem;
+    }
+    
+    /* Header right section */
+    .header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .btn-upgrade {
+        padding: 0.35rem 0.75rem;
+        font-size: 0.7rem;
+    }
+    
+    .user-profile {
+        padding: 0.25rem;
+    }
+    
+    .user-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+    
+    .user-info {
+        display: none;
+    }
+    
+    /* App content */
+    .app-content {
+        padding: 0.75rem;
+        margin: 0.5rem auto;
+    }
+    
+    /* Section headers */
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1.2rem;
+    }
+    
+    /* Stats grid - 2 columns on tablet, 1 on mobile */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .stat-card {
+        padding: 0.75rem;
+    }
+    
+    .stat-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    /* Dashboard grid */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    /* Tables - Make scrollable horizontally */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .data-table {
+        min-width: 600px;
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+    
+    /* Forms */
+    .enquiry-form {
+        padding: 1rem;
+    }
+    
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .form-group.full-width {
+        grid-column: span 1;
+    }
+    
+    .form-control {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+    
+    /* Buttons */
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .btn-sm {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Search and filter bar */
+    .search-filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .search-box {
+        width: 100%;
+    }
+    
+    .filter-group {
+        width: 100%;
+    }
+    
+    .filter-group select {
+        width: 100%;
+    }
+    
+    .clear-filters {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .results-count {
+        text-align: center;
+        margin-left: 0;
+    }
+    
+    /* Subscription banner */
+    .subscription-banner {
+        flex-direction: column;
+        text-align: center;
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .subscription-info {
+        justify-content: center;
+    }
+    
+    /* Cards */
+    .card-header {
+        padding: 0.75rem;
+    }
+    
+    .card-header h3 {
+        font-size: 0.95rem;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+    
+    /* Follow-up items */
+    .followup-item {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem;
+    }
+    
+    .followup-item > div:first-child {
+        width: 100%;
+    }
+    
+    /* Day-wise accordion for Next 10 Days */
+    .day-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+    
+    .day-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .day-table {
+        min-width: 500px;
+    }
+    
+    .day-table th,
+    .day-table td {
+        padding: 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    /* Modals */
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+        max-height: 90vh;
+    }
+    
+    .modal-header {
+        padding: 0.75rem;
+    }
+    
+    .modal-header h3 {
+        font-size: 1rem;
+    }
+    
+    .modal-body {
+        padding: 0.75rem;
+    }
+    
+    .modal-footer {
+        padding: 0.75rem;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .modal-footer .btn {
+        width: 100%;
+    }
+    
+    /* Plan card */
+    .plan-card {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .plan-amount {
+        font-size: 2rem;
+    }
+    
+    .plan-feature {
+        font-size: 0.8rem;
+        padding: 0.5rem 0;
+    }
+    
+    /* Payment methods */
+    .payment-methods {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    /* Reports grid */
+    .reports-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .report-card {
+        padding: 1rem;
+    }
+    
+    /* Analytics stats */
+    .analytics-stats {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    /* Vehicle grid */
+    .vehicle-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+    
+    @media (max-width: 480px) {
+        .vehicle-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    /* Registration progress */
+    .registration-progress {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .progress-step {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .step-number {
+        margin: 0;
+    }
+    
+    .progress-line,
+    .progress-fill {
+        display: none;
+    }
+    
+    /* Form rows */
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    /* Toggle switch */
+    .toggle-switch {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    /* Exchange section */
+    .exchange-section,
+    .booking-section {
+        padding: 0.75rem;
+    }
+    
+    /* Toast notifications */
+    .toast-container {
+        top: auto;
+        bottom: 0.5rem;
+        right: 0.5rem;
+        left: 0.5rem;
+    }
+    
+    .toast {
+        width: calc(100% - 1rem);
+        font-size: 0.8rem;
+    }
+    
+    /* Dashboard cards spacing */
+    .dashboard-card {
+        margin-bottom: 0;
+    }
+    
+    /* Today's follow-ups and interventions */
+    #today-followups .followup-item,
+    #pending-interventions .intervention-item {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+    
+    .intervention-header {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    /* Team table */
+    #team-list td {
+        white-space: normal;
+        word-break: break-word;
+    }
+    
+    /* Performance score badge */
+    .performance-score {
+        display: inline-block;
+        margin-top: 0.25rem;
+    }
+}
+
+/* Tablet view (768px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .main-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-btn {
+        flex: 1 0 auto;
+        justify-content: center;
+    }
+    
+    .app-content {
+        padding: 1rem;
+    }
+}
+
+/* Fix for very small screens */
+@media (max-width: 360px) {
+    .nav-btn {
+        padding: 0.4rem 0.5rem;
+        font-size: 0.65rem;
+    }
+    
+    .stat-value {
+        font-size: 1.2rem;
+    }
+    
+    .section-header h2 {
+        font-size: 1rem;
+    }
+    
+    .btn-upgrade {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.65rem;
+    }
+}
+
+/* Landscape mode fix */
+@media (max-width: 850px) and (orientation: landscape) {
+    .app-header {
+        position: relative;
+    }
+    
+    .main-nav {
+        max-height: 60px;
+        overflow-x: auto;
+    }
+    
+    .modal-content {
+        max-height: 85vh;
+        overflow-y: auto;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (max-width: 768px) {
+    button, 
+    .nav-btn,
+    .btn,
+    .day-header,
+    .brand-header,
+    .data-table tbody tr {
+        cursor: pointer;
+        min-height: 44px; /* Better touch target */
+    }
+    
+    input, 
+    select, 
+    textarea {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+    }
+    
+    .data-table th,
+    .data-table td {
+        min-width: 80px;
+    }
+}
     </style>
 </head>
 
