@@ -2962,6 +2962,147 @@
             }
         }
 
+        /* Pamphlet Management Styles */
+        .pamphlet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .pamphlet-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all var(--transition);
+            text-align: center;
+            padding: 0.75rem;
+            position: relative;
+        }
+
+        .pamphlet-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .pamphlet-card.selected {
+            border-color: var(--success);
+            background: rgba(46, 196, 182, 0.1);
+        }
+
+        .pamphlet-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+        }
+
+        .pamphlet-card .pamphlet-name {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .pamphlet-card .delete-pamphlet {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(231, 29, 54, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .pamphlet-card:hover .delete-pamphlet {
+            display: block;
+        }
+
+        .pamphlet-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--radius);
+            margin: 1rem 0;
+        }
+
+        .whatsapp-preview-box {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.875rem;
+        }
+
+        .whatsapp-preview-box .message-preview {
+            background: #dcf8c5;
+            padding: 0.75rem;
+            border-radius: var(--radius);
+            margin-top: 0.5rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .pamphlet-upload-area {
+            border: 2px dashed var(--border-light);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            margin-bottom: 1rem;
+        }
+
+        .pamphlet-upload-area:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .pamphlet-upload-area.dragover {
+            border-color: var(--success);
+            background: rgba(46, 196, 182, 0.1);
+        }
+
+        .pamphlet-upload-area i {
+            font-size: 3rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+        }
+
+        /* Pamphlet Management Section */
+        .pamphlet-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pamphlet-stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .pamphlet-stat-card .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .pamphlet-stat-card .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
         /* Fix for very small screens */
         @media (max-width: 360px) {
             .nav-btn {
@@ -3479,6 +3620,11 @@
                         <i class="fas fa-calendar-week"></i>
                         <span class="nav-text">Next 10 Days</span>
                         <span class="nav-badge" id="next-10-days-badge">0</span>
+                    </button>
+                    <button class="nav-btn owner-only" data-section="pamphlets">
+                        <i class="fas fa-images"></i>
+                        <span class="nav-text">Pamphlets</span>
+                        <span class="nav-badge" id="pamphlets-badge">0</span>
                     </button>
                 </nav>
 
@@ -4391,6 +4537,58 @@
                 <!-- Day-wise Accordion Container -->
                 <div id="day-wise-container"></div>
             </section>
+            <!-- Pamphlet Management Section -->
+            <section id="pamphlets" class="section owner-only">
+                <div class="section-header">
+                    <h2><i class="fas fa-images"></i> Pamphlet Management</h2>
+                    <div class="pamphlet-actions">
+                        <button class="btn btn-primary" onclick="app.showUploadPamphletModal()">
+                            <i class="fas fa-upload"></i> Upload Pamphlet
+                        </button>
+                        <button class="btn btn-outline" onclick="app.loadPamphlets()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pamphlet-stats">
+                    <div class="pamphlet-stat-card">
+                        <div class="stat-number" id="total-pamphlets">0</div>
+                        <div class="stat-label">Total Pamphlets</div>
+                    </div>
+                    <div class="pamphlet-stat-card">
+                        <div class="stat-number" id="pamphlet-vehicles">0</div>
+                        <div class="stat-label">Vehicle Models</div>
+                    </div>
+                    <div class="pamphlet-stat-card">
+                        <div class="stat-number" id="pamphlet-storage">0 MB</div>
+                        <div class="stat-label">Storage Used</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Pamphlet</th>
+                                <th>Name</th>
+                                <th>Vehicle Model</th>
+                                <th>Size</th>
+                                <th>Uploaded On</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pamphlet-list">
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading pamphlets...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
         </main>
 
         <!-- Inventory Modal -->
@@ -4574,6 +4772,112 @@
                 <div class="modal-footer">
                     <button class="btn btn-outline" onclick="app.closeInterventionModal()">Cancel</button>
                     <button class="btn btn-warning" onclick="app.saveIntervention()">Create Intervention</button>
+                </div>
+            </div>
+        </div>
+        <!-- Upload Pamphlet Modal -->
+        <div id="upload-pamphlet-modal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 500px;">
+                <div class="modal-header">
+                    <h3><i class="fas fa-upload"></i> Upload Pamphlet</h3>
+                    <button class="modal-close" onclick="app.closeUploadPamphletModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="upload-pamphlet-form">
+                        <div class="form-group">
+                            <label>Pamphlet Name *</label>
+                            <input type="text" id="pamphlet-name" class="form-control"
+                                placeholder="e.g., Diwali Offer 2025">
+                        </div>
+                        <div class="form-group">
+                            <label>Vehicle Model *</label>
+                            <select id="pamphlet-vehicle-model" class="form-control">
+                                <option value="">Select Vehicle Model</option>
+                                <!-- Will be populated from inventory -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Upload Image (JPG, PNG) *</label>
+                            <div class="pamphlet-upload-area" id="pamphlet-drop-zone">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Drag & drop or click to upload</p>
+                                <small class="text-muted">Max size: 2MB | Recommended: 800×600</small>
+                                <input type="file" id="pamphlet-file" accept="image/*" style="display: none;">
+                            </div>
+                            <div id="pamphlet-file-preview" style="display: none; margin-top: 1rem;">
+                                <img id="pamphlet-preview-img"
+                                    style="max-width: 100%; max-height: 200px; border-radius: var(--radius);">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Default Message Template</label>
+                            <textarea id="pamphlet-message" class="form-control" rows="3">Hi {customer_name},
+
+Check out this special offer on {vehicle_model}!
+
+{offer_details}
+
+Visit us: {showroom_address}</textarea>
+                            <small class="text-muted">Use {customer_name}, {vehicle_model}, {showroom_address} as
+                                placeholders</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="app.closeUploadPamphletModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="app.savePamphlet()">Upload</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Send Pamphlet Modal -->
+        <div id="send-pamphlet-modal" class="modal-overlay">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3><i class="fas fa-image"></i> Send Pamphlet to Customer</h3>
+                    <button class="modal-close" onclick="app.closeSendPamphletModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div
+                        style="margin-bottom: 1rem; padding: 0.5rem; background: var(--bg-secondary); border-radius: var(--radius);">
+                        <p><strong>Customer:</strong> <span id="send-customer-name"></span></p>
+                        <p><strong>Phone:</strong> <span id="send-customer-phone"></span></p>
+                        <p><strong>Vehicle Model:</strong> <span id="send-vehicle-model"></span></p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select Pamphlet</label>
+                        <div id="pamphlet-grid" class="pamphlet-grid">
+                            <div class="text-center text-muted py-4">Loading pamphlets...</div>
+                        </div>
+                    </div>
+
+                    <div id="pamphlet-preview-container" style="display: none;">
+                        <label>Selected Pamphlet Preview</label>
+                        <img id="send-pamphlet-preview" class="pamphlet-preview" src="" alt="Pamphlet Preview">
+                    </div>
+
+                    <div class="form-group">
+                        <label>WhatsApp Message</label>
+                        <div class="whatsapp-preview-box">
+                            <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+                            <div class="message-preview" id="send-message-preview">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Edit Message (Optional)</label>
+                        <textarea id="send-custom-message" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline" onclick="app.closeSendPamphletModal()">Cancel</button>
+                    <button class="btn btn-success" id="send-whatsapp-pamphlet-btn"
+                        onclick="app.sendPamphletViaWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> Send via WhatsApp
+                    </button>
                 </div>
             </div>
         </div>
@@ -4825,6 +5129,60 @@
                 if (passwordInput) {
                     passwordInput.addEventListener('input', () => this.checkPasswordStrength());
                 }
+
+                // Pamphlet file upload handling
+                const fileInput = document.getElementById('pamphlet-file');
+                const dropZone = document.getElementById('pamphlet-drop-zone');
+                const previewContainer = document.getElementById('pamphlet-file-preview');
+                const previewImg = document.getElementById('pamphlet-preview-img');
+
+                if (fileInput) {
+                    fileInput.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                previewImg.src = e.target.result;
+                                previewContainer.style.display = 'block';
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+
+                if (dropZone) {
+                    dropZone.addEventListener('click', () => {
+                        if (fileInput) fileInput.click();
+                    });
+
+                    dropZone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        dropZone.classList.add('dragover');
+                    });
+
+                    dropZone.addEventListener('dragleave', () => {
+                        dropZone.classList.remove('dragover');
+                    });
+
+                    dropZone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        dropZone.classList.remove('dragover');
+                        if (e.dataTransfer.files.length) {
+                            fileInput.files = e.dataTransfer.files;
+                            fileInput.dispatchEvent(new Event('change'));
+                        }
+                    });
+                }
+
+                // Message preview update
+                const customMessage = document.getElementById('send-custom-message');
+                if (customMessage) {
+                    customMessage.addEventListener('input', () => {
+                        this.updateSendMessagePreview();
+                    });
+                }
+
+
             }
 
             // ==========================================================================
@@ -5048,6 +5406,9 @@
                 }
                 else if (sectionId === 'next-10-days') {
                     this.loadNext10Days();
+                }
+                else if (sectionId === 'pamphlets' && this.userRole === 'owner') {
+                    this.loadPamphlets();
                 }
             }
             // ==========================================================================
@@ -7229,7 +7590,7 @@ Reply with your convenient time for a test drive.
                 tbody.innerHTML = '';
 
                 if (this.filteredEnquiries.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4">No enquiries match your filters</td></tr>'; // Updated colspan
+                    tbody.innerHTML = '<tr><td colspan="10" class="text-center py-4">No enquiries match your filters</td></tr>';
                     return;
                 }
 
@@ -7242,13 +7603,11 @@ Reply with your convenient time for a test drive.
                     const statusClass = isOverdue ? 'status-overdue' : `status-${enquiry.status || 'new'}`;
                     const statusText = isOverdue ? 'Overdue' : (enquiry.status || 'new');
 
-                    // Handle display for exchange enquiries
                     let vehicleDisplay = 'Sale';
                     let modelDisplay = enquiry.vehicleModel || 'N/A';
                     let sourceDisplay = enquiry.source || 'N/A';
                     let bookingAmountDisplay = enquiry.bookingAmount ? `₹${enquiry.bookingAmount.toLocaleString()}` : '-';
 
-                    // Last Update formatting
                     let lastUpdateDisplay = 'N/A';
                     if (enquiry.updatedAt) {
                         const updateDate = new Date(enquiry.updatedAt);
@@ -7273,12 +7632,13 @@ Reply with your convenient time for a test drive.
                         lastUpdateDisplay = 'Just added';
                     }
 
+                    const isHotOrWarm = enquiry.status === 'hot' || enquiry.status === 'followup' || enquiry.autoLeadType === 'hot' || enquiry.autoLeadType === 'warm';
+
                     if (enquiry.isExchange) {
                         vehicleDisplay = 'Exchange';
                         modelDisplay = enquiry.exchangeModel || 'N/A';
                     }
 
-                    // Add emoji for source types
                     let sourceEmoji = '';
                     switch (enquiry.source) {
                         case 'Walk In Customer': sourceEmoji = '🚶 '; break;
@@ -7287,43 +7647,40 @@ Reply with your convenient time for a test drive.
                         case 'Field Enquiry': sourceEmoji = '🌐 '; break;
                         default: sourceEmoji = '';
                     }
-
                     row.innerHTML = `
-    <td>${enquiry.customerName || ''}</td>
-    <td>${enquiry.phone || ''}</td>
-    <td>${sourceEmoji}${sourceDisplay}</td>
-    <td><span class="vehicle-badge ${enquiry.isExchange ? 'exchange' : 'car'}">${vehicleDisplay}</span></td>
-    <td>${modelDisplay}</td>
-    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-    <td>${bookingAmountDisplay}</td>
-    <td>${followupDate}</td>
-    <td><span title="${enquiry.updatedAt ? new Date(enquiry.updatedAt).toLocaleString() : ''}" style="font-size: 0.8rem; color: var(--text-light);">${lastUpdateDisplay}</span></td>
-    <td>
-        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.viewEnquiry('${enquiry.id}')">
-            <i class="fas fa-eye"></i>
-        </button>
-        <button class="btn btn-sm btn-info" onclick="event.stopPropagation(); app.showEditEnquiryModal('${enquiry.id}')">
-            <i class="fas fa-edit"></i> Edit
-        </button>
-        ${(enquiry.status === 'hot' || enquiry.status === 'followup' || enquiry.autoLeadType === 'hot' || enquiry.autoLeadType === 'warm') ? `
-            <button class="btn btn-sm btn-whatsapp" onclick="event.stopPropagation(); app.openWhatsApp('${enquiry.id}')" title="Send WhatsApp">
-                <i class="fab fa-whatsapp"></i>
-            </button>
-        ` : ''}
-        <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); app.showRemarksHistory('${enquiry.id}')" title="View Remarks History">
-            <i class="fas fa-history"></i>
-        </button>
-        ${this.userRole === 'owner' ? `
-            <button class="btn btn-sm btn-warning" onclick="event.stopPropagation(); app.addIntervention('${enquiry.id}')">
-                <i class="fas fa-exclamation-triangle"></i>
-            </button>
-        ` : ''}
-    </td>
-`;
+                     <td>${enquiry.customerName || ''}</td>
+                     <td>${enquiry.phone || ''}</td>
+                     <td>${sourceEmoji}${sourceDisplay}</td>
+                     <td><span class="vehicle-badge ${enquiry.isExchange ? 'exchange' : 'car'}">${vehicleDisplay}</span></td>
+                     <td>${modelDisplay}</td>
+                     <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                     <td>${bookingAmountDisplay}</td>
+                     <td>${followupDate}</td>
+                     <td><span title="${enquiry.updatedAt ? new Date(enquiry.updatedAt).toLocaleString() : ''}" style="font-size: 0.8rem; color: var(--text-light);">${lastUpdateDisplay}</span></td>
+                     <td>
+                        <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.viewEnquiry('${enquiry.id}')">
+                        <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-info" onclick="event.stopPropagation(); app.showEditEnquiryModal('${enquiry.id}')">
+                         <i class="fas fa-edit"></i> Edit
+                        </button>
+                    ${isHotOrWarm ? `
+                     <button class="btn btn-sm btn-whatsapp" onclick="event.stopPropagation(); app.openWhatsAppWithPamphlet('${enquiry.id}')" title="Send WhatsApp with Pamphlet">
+                        <i class="fab fa-whatsapp"></i>
+                     </button>
+                    ` : ''}
+                     <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); app.showRemarksHistory('${enquiry.id}')" title="View Remarks History">
+                    <i class="fas fa-history"></i>
+                    </button>
+                    ${this.userRole === 'owner' ? `
+                    <button class="btn btn-sm btn-warning" onclick="event.stopPropagation(); app.addIntervention('${enquiry.id}')">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </button>
+                   ` : ''}
+                  </td> `;
                     tbody.appendChild(row);
                 });
             }
-
             updateResultsCount() {
                 const countSpan = document.getElementById('enquiry-results-count');
                 if (countSpan) {
@@ -7905,6 +8262,8 @@ Reply with your convenient time for a test drive.
 
                     // next 10 days 
                     this.loadNext10Days();
+
+                    this.initPamphlets();
 
 
                     // Load Today's Hold data (only for owner)
@@ -8905,6 +9264,516 @@ Reply with your convenient time for a test drive.
                 `;
                 }
                 document.getElementById('enquiries-by-vehicle').innerHTML = vehicleHtml || '<div class="text-muted">No data</div>';
+            }
+
+            // ==========================================================================
+            // Pamphlet Management - Local Storage Based
+            // ==========================================================================
+
+            // Initialize pamphlets from local storage
+            initPamphlets() {
+                this.pamphlets = [];
+                this.selectedPamphlet = null;
+                this.currentPamphletEnquiry = null;
+                this.loadPamphletsFromStorage();
+            }
+
+            // Load pamphlets from local storage
+            loadPamphletsFromStorage() {
+                try {
+                    const showroomId = this.showroomData?.id || 'default';
+                    const storageKey = `pamphlets_${showroomId}`;
+                    const stored = localStorage.getItem(storageKey);
+
+                    if (stored) {
+                        this.pamphlets = JSON.parse(stored);
+                    } else {
+                        this.pamphlets = [];
+                    }
+
+                    console.log(`Loaded ${this.pamphlets.length} pamphlets from local storage`);
+                    this.updatePamphletBadge();
+                    return this.pamphlets;
+                } catch (error) {
+                    console.error('Error loading pamphlets from storage:', error);
+                    this.pamphlets = [];
+                    return [];
+                }
+            }
+
+            // Save pamphlets to local storage
+            savePamphletsToStorage() {
+                try {
+                    const showroomId = this.showroomData?.id || 'default';
+                    const storageKey = `pamphlets_${showroomId}`;
+                    localStorage.setItem(storageKey, JSON.stringify(this.pamphlets));
+                    console.log(`Saved ${this.pamphlets.length} pamphlets to local storage`);
+                    this.updatePamphletBadge();
+                    return true;
+                } catch (error) {
+                    console.error('Error saving pamphlets to storage:', error);
+                    this.showToast('Error saving pamphlets. Storage may be full.', 'error');
+                    return false;
+                }
+            }
+
+            // Update pamphlet badge count
+            updatePamphletBadge() {
+                const badge = document.getElementById('pamphlets-badge');
+                if (badge) {
+                    badge.textContent = this.pamphlets.length;
+                }
+
+                const totalEl = document.getElementById('total-pamphlets');
+                if (totalEl) {
+                    totalEl.textContent = this.pamphlets.length;
+                }
+
+                // Update vehicle models count
+                const vehicleModels = new Set(this.pamphlets.map(p => p.vehicleModel).filter(Boolean));
+                const vehicleEl = document.getElementById('pamphlet-vehicles');
+                if (vehicleEl) {
+                    vehicleEl.textContent = vehicleModels.size;
+                }
+
+                // Update storage used
+                const totalSize = this.pamphlets.reduce((sum, p) => sum + (p.size || 0), 0);
+                const sizeEl = document.getElementById('pamphlet-storage');
+                if (sizeEl) {
+                    const sizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+                    sizeEl.textContent = sizeMB > 0 ? `${sizeMB} MB` : '0 MB';
+                }
+            }
+
+            // Load pamphlets for display
+            loadPamphlets() {
+                this.loadPamphletsFromStorage();
+                this.renderPamphletTable();
+            }
+
+            // Render pamphlet table
+            renderPamphletTable() {
+                const tbody = document.getElementById('pamphlet-list');
+                if (!tbody) return;
+
+                tbody.innerHTML = '';
+
+                if (this.pamphlets.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">No pamphlets uploaded yet. Click "Upload Pamphlet" to add your first one.</td></tr>';
+                    return;
+                }
+
+                this.pamphlets.forEach((pamphlet, index) => {
+                    const row = document.createElement('tr');
+                    const uploadDate = pamphlet.uploadedAt ? new Date(pamphlet.uploadedAt).toLocaleDateString() : 'Recently';
+                    const fileSize = pamphlet.size ? (pamphlet.size / 1024).toFixed(1) + ' KB' : 'Unknown';
+
+                    row.innerHTML = `
+            <td>
+                <img src="${pamphlet.dataUrl}" style="width: 60px; height: 50px; object-fit: cover; border-radius: var(--radius-sm);">
+            </td>
+            <td><strong>${pamphlet.name}</strong></td>
+            <td>${pamphlet.vehicleModel || 'All Vehicles'}</td>
+            <td>${fileSize}</td>
+            <td>${uploadDate}</td>
+            <td>
+                <button class="btn btn-sm btn-outline" onclick="app.previewPamphlet(${index})">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="app.deletePamphlet(${index})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            // Preview pamphlet
+            previewPamphlet(index) {
+                const pamphlet = this.pamphlets[index];
+                if (!pamphlet) return;
+
+                const previewWindow = window.open('', '_blank', 'width=400,height=500');
+                previewWindow.document.write(`
+        <html>
+            <head><title>${pamphlet.name}</title></head>
+            <body style="display:flex; justify-content:center; align-items:center; height:100vh; margin:0; background:#f5f5f5;">
+                <div style="text-align:center; padding:20px;">
+                    <img src="${pamphlet.dataUrl}" style="max-width:100%; max-height:80vh; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                    <h3 style="margin-top:15px; color:#333;">${pamphlet.name}</h3>
+                    <p style="color:#666;">${pamphlet.vehicleModel || 'All Vehicles'}</p>
+                </div>
+            </body>
+        </html>
+    `);
+                previewWindow.document.close();
+            }
+
+            // Delete pamphlet
+            deletePamphlet(index) {
+                const pamphlet = this.pamphlets[index];
+                if (!pamphlet) return;
+
+                if (!confirm(`Are you sure you want to delete "${pamphlet.name}"?`)) return;
+
+                this.pamphlets.splice(index, 1);
+                this.savePamphletsToStorage();
+                this.renderPamphletTable();
+                this.showToast('Pamphlet deleted successfully', 'success');
+            }
+
+            // Show upload pamphlet modal
+            showUploadPamphletModal() {
+                // Populate vehicle models from inventory
+                const modelSelect = document.getElementById('pamphlet-vehicle-model');
+                if (modelSelect) {
+                    modelSelect.innerHTML = '<option value="">All Vehicles</option>';
+                    const models = new Set();
+                    this.inventory.forEach(item => {
+                        const model = `${item.brand} ${item.model}`;
+                        if (!models.has(model)) {
+                            models.add(model);
+                            const option = document.createElement('option');
+                            option.value = model;
+                            option.textContent = model;
+                            modelSelect.appendChild(option);
+                        }
+                    });
+                    // Add option for manual entry
+                    const manualOption = document.createElement('option');
+                    manualOption.value = 'manual';
+                    manualOption.textContent = '→ Other (specify in name)';
+                    modelSelect.appendChild(manualOption);
+                }
+
+                document.getElementById('upload-pamphlet-modal').classList.add('active');
+                document.getElementById('upload-pamphlet-form').reset();
+                document.getElementById('pamphlet-file-preview').style.display = 'none';
+            }
+
+            // Close upload pamphlet modal
+            closeUploadPamphletModal() {
+                document.getElementById('upload-pamphlet-modal').classList.remove('active');
+            }
+
+            // Save pamphlet (local storage)
+            async savePamphlet() {
+                const name = document.getElementById('pamphlet-name').value.trim();
+                const vehicleModel = document.getElementById('pamphlet-vehicle-model').value;
+                const message = document.getElementById('pamphlet-message').value.trim();
+                const fileInput = document.getElementById('pamphlet-file');
+
+                if (!name || !fileInput.files[0]) {
+                    this.showToast('Please fill all required fields', 'error');
+                    return;
+                }
+
+                const file = fileInput.files[0];
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    this.showToast('Please upload an image file (JPG, PNG)', 'error');
+                    return;
+                }
+
+                // Validate file size (max 2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    this.showToast('File size should be less than 2MB', 'error');
+                    return;
+                }
+
+                this.showLoading(true);
+
+                try {
+                    // Read file as base64
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const dataUrl = e.target.result;
+
+                        const pamphlet = {
+                            id: 'pamphlet_' + Date.now(),
+                            name: name,
+                            vehicleModel: vehicleModel || 'All Vehicles',
+                            message: message,
+                            dataUrl: dataUrl,
+                            size: file.size,
+                            type: file.type,
+                            uploadedAt: new Date().toISOString()
+                        };
+
+                        this.pamphlets.push(pamphlet);
+                        this.savePamphletsToStorage();
+                        this.renderPamphletTable();
+                        this.closeUploadPamphletModal();
+                        this.showToast('Pamphlet uploaded successfully!', 'success');
+                        this.showLoading(false);
+                    };
+
+                    reader.onerror = () => {
+                        this.showToast('Error reading file', 'error');
+                        this.showLoading(false);
+                    };
+
+                    reader.readAsDataURL(file);
+
+                } catch (error) {
+                    console.error('Error uploading pamphlet:', error);
+                    this.showToast('Error uploading pamphlet: ' + error.message, 'error');
+                    this.showLoading(false);
+                }
+            }
+
+            // Show send pamphlet modal
+            showSendPamphletModal(enquiryId) {
+                const enquiry = this.enquiries.find(e => e.id === enquiryId);
+                if (!enquiry) {
+                    this.showToast('Enquiry not found', 'error');
+                    return;
+                }
+
+                this.currentPamphletEnquiry = enquiry;
+                this.selectedPamphlet = null;
+
+                document.getElementById('send-customer-name').textContent = enquiry.customerName || 'Unknown';
+                document.getElementById('send-customer-phone').textContent = enquiry.phone || 'N/A';
+                document.getElementById('send-vehicle-model').textContent = enquiry.vehicleModel || (enquiry.isExchange ? `Exchange: ${enquiry.exchangeModel}` : 'Not specified');
+
+                // Load pamphlets from local storage
+                this.loadPamphletsFromStorage();
+                this.renderPamphletGrid(enquiry.vehicleModel);
+
+                // Set default message
+                const defaultMessage = this.generateDefaultPamphletMessage(enquiry);
+                document.getElementById('send-custom-message').value = defaultMessage;
+                document.getElementById('send-message-preview').innerHTML = this.formatMessagePreview(defaultMessage);
+
+                document.getElementById('send-pamphlet-modal').classList.add('active');
+            }
+
+            // Close send pamphlet modal
+            closeSendPamphletModal() {
+                document.getElementById('send-pamphlet-modal').classList.remove('active');
+                this.selectedPamphlet = null;
+                this.currentPamphletEnquiry = null;
+            }
+
+            // Render pamphlet grid for selection
+            renderPamphletGrid(vehicleModel) {
+                const gridContainer = document.getElementById('pamphlet-grid');
+                if (!gridContainer) return;
+
+                // Filter pamphlets by vehicle model
+                let filteredPamphlets = this.pamphlets;
+                if (vehicleModel) {
+                    filteredPamphlets = this.pamphlets.filter(p =>
+                        p.vehicleModel === 'All Vehicles' ||
+                        p.vehicleModel === vehicleModel ||
+                        vehicleModel.includes(p.vehicleModel)
+                    );
+                }
+
+                if (filteredPamphlets.length === 0) {
+                    gridContainer.innerHTML = `
+            <div class="text-center text-muted py-4" style="grid-column: 1/-1;">
+                <i class="fas fa-exclamation-triangle"></i> No pamphlets available for ${vehicleModel || 'this vehicle'}.<br>
+                <small>Upload pamphlets from the Pamphlet Management section.</small>
+            </div>
+        `;
+                    return;
+                }
+
+                let html = '';
+                filteredPamphlets.forEach((pamphlet, index) => {
+                    html += `
+            <div class="pamphlet-card" data-pamphlet-index="${index}" onclick="app.selectPamphletForSend(${index})">
+                <img src="${pamphlet.dataUrl}" alt="${pamphlet.name}" onerror="this.src='https://placehold.co/150x120?text=No+Image'">
+                <div class="pamphlet-name">${pamphlet.name}</div>
+                <div style="font-size: 0.6rem; color: var(--text-light);">${pamphlet.vehicleModel}</div>
+            </div>
+        `;
+                });
+                gridContainer.innerHTML = html;
+
+                // Store filtered pamphlets for selection
+                this.filteredPamphlets = filteredPamphlets;
+            }
+
+            // Select pamphlet for sending
+            selectPamphletForSend(index) {
+                const pamphlet = this.filteredPamphlets[index];
+                if (!pamphlet) return;
+
+                this.selectedPamphlet = pamphlet;
+
+                // Update UI
+                document.querySelectorAll('.pamphlet-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                const cards = document.querySelectorAll('.pamphlet-card');
+                if (cards[index]) {
+                    cards[index].classList.add('selected');
+                }
+
+                // Show preview
+                const previewContainer = document.getElementById('pamphlet-preview-container');
+                const previewImg = document.getElementById('send-pamphlet-preview');
+                previewImg.src = pamphlet.dataUrl;
+                previewContainer.style.display = 'block';
+
+                // Update message with pamphlet name
+                const customMessage = document.getElementById('send-custom-message');
+                const currentMessage = customMessage.value;
+                if (!currentMessage.includes(pamphlet.name)) {
+                    customMessage.value = currentMessage + `\n\n📸 Check out our ${pamphlet.name}!`;
+                    document.getElementById('send-message-preview').innerHTML = this.formatMessagePreview(customMessage.value);
+                }
+            }
+
+            // Generate default pamphlet message
+            generateDefaultPamphletMessage(enquiry) {
+                const showroomName = this.showroomData?.name || 'Our Showroom';
+                const showroomAddress = this.showroomData?.address || '';
+                const vehicleModel = enquiry.vehicleModel || (enquiry.isExchange ? enquiry.exchangeModel : 'our vehicles');
+                const customerName = enquiry.customerName || 'Valued Customer';
+
+                const now = new Date();
+                const hour = now.getHours();
+                let greeting = 'Hello';
+                if (hour < 12) greeting = 'Good Morning';
+                else if (hour < 17) greeting = 'Good Afternoon';
+                else greeting = 'Good Evening';
+
+                return `${greeting} {customer_name},
+
+Thank you for your interest in {vehicle_model} at {showroom_name}.
+
+We have special offers and festive discounts available for you!
+
+📞 Call us: ${this.showroomData?.phone || ''}
+📍 Visit: ${showroomAddress}
+
+Reply with your convenient time for a test drive.
+
+*Offer valid for limited period!*
+
+- Team ShowroomDesk`;
+            }
+
+            // Format message preview (WhatsApp-like)
+            formatMessagePreview(message) {
+                return message.replace(/\n/g, '<br>');
+            }
+
+            // Update message preview on input
+            updateSendMessagePreview() {
+                const message = document.getElementById('send-custom-message').value;
+                document.getElementById('send-message-preview').innerHTML = this.formatMessagePreview(message);
+            }
+
+            // Send pamphlet via WhatsApp
+            async sendPamphletViaWhatsApp() {
+                if (!this.selectedPamphlet) {
+                    this.showToast('Please select a pamphlet first', 'error');
+                    return;
+                }
+
+                if (!this.currentPamphletEnquiry) {
+                    this.showToast('No enquiry selected', 'error');
+                    return;
+                }
+
+                const customerPhone = this.currentPamphletEnquiry.phone;
+                if (!customerPhone) {
+                    this.showToast('Customer phone number not available', 'error');
+                    return;
+                }
+
+                let message = document.getElementById('send-custom-message').value;
+
+                // Replace placeholders
+                const enquiry = this.currentPamphletEnquiry;
+                const showroomName = this.showroomData?.name || 'Our Showroom';
+                const showroomAddress = this.showroomData?.address || '';
+                const vehicleModel = enquiry.vehicleModel || (enquiry.isExchange ? enquiry.exchangeModel : 'our vehicles');
+                const customerName = enquiry.customerName || 'Valued Customer';
+
+                message = message
+                    .replace(/{customer_name}/g, customerName)
+                    .replace(/{vehicle_model}/g, vehicleModel)
+                    .replace(/{showroom_name}/g, showroomName)
+                    .replace(/{showroom_address}/g, showroomAddress);
+
+                // Clean phone number
+                let cleanPhone = customerPhone.toString().replace(/\s/g, '');
+                if (cleanPhone.startsWith('+')) {
+                    cleanPhone = cleanPhone.substring(1);
+                }
+                if (cleanPhone.startsWith('91') && cleanPhone.length === 12) {
+                    // Already has country code
+                } else if (cleanPhone.length === 10) {
+                    cleanPhone = '91' + cleanPhone;
+                }
+
+                // Create WhatsApp URL with message and image
+                const encodedMessage = encodeURIComponent(message);
+                const imageUrl = this.selectedPamphlet.dataUrl;
+
+                // Note: wa.me links don't support direct image attachment
+                // We'll send the image as a link in the message
+                const waLink = `https://wa.me/${cleanPhone}?text=${encodedMessage}%0A%0A📸 *Pamphlet:* ${imageUrl}`;
+
+                // Open WhatsApp in new tab
+                window.open(waLink, '_blank');
+
+                // Log the send
+                await this.logPamphletSent(
+                    this.currentPamphletEnquiry.id,
+                    this.selectedPamphlet.name,
+                    this.selectedPamphlet.vehicleModel
+                );
+
+                this.showToast('WhatsApp opened! Send the message from WhatsApp.', 'success');
+                this.closeSendPamphletModal();
+            }
+
+            // Log pamphlet sent
+            async logPamphletSent(enquiryId, pamphletName, vehicleModel) {
+                try {
+                    const logRef = window.firebase.collection(window.firebase.db, 'pamphletLogs');
+                    await window.firebase.addDoc(logRef, {
+                        enquiryId: enquiryId,
+                        pamphletName: pamphletName,
+                        vehicleModel: vehicleModel,
+                        sentBy: this.currentUser?.uid,
+                        sentByName: document.getElementById('user-name').textContent,
+                        sentAt: new Date().toISOString(),
+                        showroomId: this.showroomData.id
+                    });
+                    console.log('Pamphlet send logged');
+                } catch (error) {
+                    console.error('Error logging pamphlet send:', error);
+                }
+            }
+
+            // Update WhatsApp button to open pamphlet modal instead of direct send
+            openWhatsAppWithPamphlet(enquiryId) {
+                const enquiry = this.enquiries.find(e => e.id === enquiryId);
+                if (!enquiry) {
+                    this.showToast('Enquiry not found', 'error');
+                    return;
+                }
+
+                // Check if pamphlets exist
+                this.loadPamphletsFromStorage();
+                if (this.pamphlets.length === 0) {
+                    // Fallback to direct WhatsApp without pamphlet
+                    this.openWhatsApp(enquiryId);
+                    return;
+                }
+
+                // Show pamphlet selection modal
+                this.showSendPamphletModal(enquiryId);
             }
 
             // ==========================================================================
