@@ -10744,7 +10744,7 @@ Reply with your convenient time for a test drive.
                 if (this.blockIfTrialExpired()) return;
                 const status2 = this.getTrialStatus();
                 if (status2.status === 'grace') {
-                    this.showToast(`⚠️ Grace period active (${status.daysLeft} days left). Please upgrade to add new enquiries.`, 'warning');
+                    this.showToast(`⚠️ Grace period active (${status2.daysLeft} days left). Please upgrade to add new enquiries.`, 'warning');
                     return;
                 }
 
@@ -10765,16 +10765,42 @@ Reply with your convenient time for a test drive.
                     return;
                 }
 
+                // Validate phone
+                const phoneRaw = document.getElementById('enquiry-phone').value.trim();
+                if (!phoneRaw) {
+                    this.showToast('Phone number is required', 'error');
+                    return;
+                }
+
+                // Normalize phone for duplicate check
+                const normalizePhone = (p) => p.toString().replace(/\D/g, '');
+                const newPhone = normalizePhone(phoneRaw);
+
+                // Check for duplicate active enquiry with same phone
+                const existing = this.enquiries.find(e => {
+                    const existingPhone = normalizePhone(e.phone);
+                    return existingPhone === newPhone &&
+                        e.status !== 'closed' &&
+                        e.status !== 'lost';
+                });
+                if (existing) {
+                    this.showToast(
+                        `An active enquiry (${existing.customerName}) already exists with this phone number. Please update the existing enquiry instead.`,
+                        'error'
+                    );
+                    return;
+                }
+
                 // Base enquiry data
                 const enquiryData = {
-                    customerName: document.getElementById('enquiry-customer-name').value,
-                    phone: document.getElementById('enquiry-phone').value,
-                    email: document.getElementById('enquiry-email').value,
+                    customerName: document.getElementById('enquiry-customer-name').value.trim(),
+                    phone: phoneRaw, // store as entered, but we normalized for check
+                    email: document.getElementById('enquiry-email').value.trim(),
                     source: source,
                     isExchange: isExchange,
                     status: status,
                     followupDate: document.getElementById('enquiry-followup').value,
-                    remarks: document.getElementById('enquiry-remarks').value,
+                    remarks: document.getElementById('enquiry-remarks').value.trim(),
                     showroomId: this.showroomData.id,
                     salesManagerId: this.currentUser.uid,
                     salesManagerName: document.getElementById('user-name').textContent,
@@ -10798,7 +10824,6 @@ Reply with your convenient time for a test drive.
                     const selectedOption = Array.from(document.querySelectorAll('#enquiry-model option')).find(
                         opt => opt.value === selectedModel
                     );
-
                     if (selectedOption && selectedOption.dataset) {
                         enquiryData.vehicleType = selectedOption.dataset.type || 'unknown';
                         enquiryData.vehicleBrand = selectedOption.dataset.brand || '';
