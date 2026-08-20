@@ -3178,136 +3178,6 @@
             .data-table td {
                 min-width: 80px;
             }
-
-            /* ==========================================================================
-   Call Tracking Styles
-   ========================================================================== */
-
-            .call-log-button {
-                background: #4CAF50;
-                color: white;
-            }
-
-            .call-log-button:hover {
-                background: #388E3C;
-            }
-
-            .call-timeline {
-                position: relative;
-                padding-left: 2rem;
-                margin: 1rem 0;
-            }
-
-            .call-timeline::before {
-                content: '';
-                position: absolute;
-                left: 8px;
-                top: 0;
-                bottom: 0;
-                width: 2px;
-                background: var(--border-light);
-            }
-
-            .call-entry {
-                position: relative;
-                padding: 0.75rem 1rem;
-                margin-bottom: 1rem;
-                background: var(--bg-secondary);
-                border-radius: var(--radius);
-                border-left: 4px solid var(--primary);
-            }
-
-            .call-entry::before {
-                content: '';
-                position: absolute;
-                left: -1.35rem;
-                top: 1rem;
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-                background: var(--primary);
-                border: 2px solid white;
-                box-shadow: 0 0 0 2px var(--primary);
-            }
-
-            .call-entry.missed {
-                border-left-color: var(--danger);
-            }
-
-            .call-entry.missed::before {
-                background: var(--danger);
-                box-shadow: 0 0 0 2px var(--danger);
-            }
-
-            .call-entry.connected {
-                border-left-color: var(--success);
-            }
-
-            .call-entry.connected::before {
-                background: var(--success);
-                box-shadow: 0 0 0 2px var(--success);
-            }
-
-            .call-entry.voicemail {
-                border-left-color: var(--warning);
-            }
-
-            .call-entry.voicemail::before {
-                background: var(--warning);
-                box-shadow: 0 0 0 2px var(--warning);
-            }
-
-            .call-entry .call-meta {
-                display: flex;
-                gap: 1rem;
-                flex-wrap: wrap;
-                font-size: 0.75rem;
-                color: var(--text-light);
-            }
-
-            .call-entry .call-meta span {
-                display: flex;
-                align-items: center;
-                gap: 0.25rem;
-            }
-
-            .call-entry .call-notes {
-                margin-top: 0.5rem;
-                font-size: 0.875rem;
-                color: var(--text-secondary);
-            }
-
-            .call-status-badge {
-                padding: 0.2rem 0.6rem;
-                border-radius: var(--radius-full);
-                font-size: 0.65rem;
-                font-weight: 600;
-                display: inline-block;
-            }
-
-            .call-status-connected {
-                background: rgba(46, 196, 182, 0.2);
-                color: var(--success);
-            }
-
-            .call-status-missed {
-                background: rgba(231, 29, 54, 0.2);
-                color: var(--danger);
-            }
-
-            .call-status-voicemail {
-                background: rgba(255, 159, 28, 0.2);
-                color: var(--warning);
-            }
-
-            .call-log-count {
-                font-size: 0.7rem;
-                background: var(--primary);
-                color: white;
-                border-radius: var(--radius-full);
-                padding: 0.1rem 0.5rem;
-                margin-left: 0.25rem;
-            }
         }
     </style>
 </head>
@@ -3947,7 +3817,6 @@
                                 <th>Status</th>
                                 <th>Booking Amount</th>
                                 <th>Follow-up</th>
-                                <th>Last Call</th>
                                 <th>Last Update</th>
                                 <th>Actions</th>
                             </tr>
@@ -4791,6 +4660,7 @@
                             <select id="team-role" class="form-control">
                                 <option value="sales">Sales Manager</option>
                                 <option value="senior">Senior Sales Manager</option>
+                                <option value="salesperson">Sales Person</option> <!-- ✅ Add this line -->
                             </select>
                         </div>
 
@@ -5008,70 +4878,6 @@ Visit us: {showroom_address}</textarea>
                     <button class="btn btn-success" id="send-whatsapp-pamphlet-btn"
                         onclick="app.sendPamphletViaWhatsApp()">
                         <i class="fab fa-whatsapp"></i> Send via WhatsApp
-                    </button>
-                </div>
-            </div>
-        </div>
-        <!-- Call Log Modal -->
-        <div id="call-log-modal" class="modal-overlay">
-            <div class="modal-content" style="max-width: 600px;">
-                <div class="modal-header">
-                    <h3><i class="fas fa-phone"></i> Call Log</h3>
-                    <button class="modal-close" onclick="app.closeCallLogModal()">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div
-                        style="margin-bottom: 1rem; padding: 0.5rem; background: var(--bg-secondary); border-radius: var(--radius);">
-                        <p><strong>Customer:</strong> <span id="call-customer-name"></span></p>
-                        <p><strong>Phone:</strong> <span id="call-customer-phone"></span></p>
-                        <p><strong>Total Calls:</strong> <span id="call-total-count">0</span></p>
-                    </div>
-
-                    <!-- Call History Timeline -->
-                    <div id="call-timeline-container">
-                        <h4 style="margin-bottom: 0.5rem;">Call History</h4>
-                        <div id="call-timeline" class="call-timeline">
-                            <div class="text-center text-muted py-4">No calls logged yet</div>
-                        </div>
-                    </div>
-
-                    <!-- Log New Call Form -->
-                    <hr style="margin: 1.5rem 0;">
-                    <h4 style="margin-bottom: 1rem;">Log New Call</h4>
-                    <form id="call-log-form">
-                        <div class="form-group">
-                            <label>Call Status *</label>
-                            <select id="call-status" class="form-control">
-                                <option value="connected">📞 Connected</option>
-                                <option value="missed">❌ Missed / No Answer</option>
-                                <option value="voicemail">🎵 Voicemail</option>
-                                <option value="busy">📴 Busy / Rejected</option>
-                                <option value="not_reachable">📡 Not Reachable</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Call Duration</label>
-                            <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                <input type="number" id="call-duration" class="form-control" placeholder="Minutes"
-                                    min="0" style="flex: 1;">
-                                <span style="color: var(--text-light);">minutes</span>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Call Notes / Outcome</label>
-                            <textarea id="call-notes" class="form-control" rows="3"
-                                placeholder="What was discussed? Next steps?"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Next Follow-up</label>
-                            <input type="date" id="call-followup-date" class="form-control">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-outline" onclick="app.closeCallLogModal()">Cancel</button>
-                    <button class="btn btn-success" onclick="app.saveCallLog()">
-                        <i class="fas fa-save"></i> Log Call
                     </button>
                 </div>
             </div>
@@ -7851,11 +7657,6 @@ Reply with your convenient time for a test drive.
                      <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                      <td>${bookingAmountDisplay}</td>
                      <td>${followupDate}</td>
-                     <td>
-                         ${enquiry.lastCallStatus ?
-                            `<span class="call-status-badge call-status-${enquiry.lastCallStatus}">${enquiry.lastCallStatus}</span>` :
-                            '<span class="text-muted">Not called</span>'}
-                     </td>
                      <td><span title="${enquiry.updatedAt ? new Date(enquiry.updatedAt).toLocaleString() : ''}" style="font-size: 0.8rem; color: var(--text-light);">${lastUpdateDisplay}</span></td>
                      <td>
                         <button class="btn btn-sm btn-outline" onclick="event.stopPropagation(); app.viewEnquiry('${enquiry.id}')">
@@ -7863,9 +7664,6 @@ Reply with your convenient time for a test drive.
                         </button>
                         <button class="btn btn-sm btn-info" onclick="event.stopPropagation(); app.showEditEnquiryModal('${enquiry.id}')">
                          <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="btn btn-sm btn-success call-log-button" onclick="event.stopPropagation(); app.showCallLogModal('${enquiry.id}')" title="Call Log">
-                          <i class="fas fa-phone"></i> Call
                         </button>
                     ${isHotOrWarm ? `
                      <button class="btn btn-sm btn-whatsapp" onclick="event.stopPropagation(); app.openWhatsAppWithPamphlet('${enquiry.id}')" title="Send WhatsApp with Pamphlet">
@@ -7880,13 +7678,7 @@ Reply with your convenient time for a test drive.
                         <i class="fas fa-exclamation-triangle"></i>
                     </button>
                    ` : ''}
-                  </td> 
-                  
-                  <td>
-                    ${enquiry.phone || ''}
-                    ${enquiry.callLogs && enquiry.callLogs.length > 0 ?
-                            `<span class="call-log-count" title="${enquiry.callLogs.length} call${enquiry.callLogs.length > 1 ? 's' : ''} logged">📞 ${enquiry.callLogs.length}</span>` : ''}
-                  </td>`;
+                  </td> `;
                     tbody.appendChild(row);
                 });
             }
@@ -8515,11 +8307,6 @@ Reply with your convenient time for a test drive.
                     this.enquiries = [];
                     snapshot.forEach(doc => {
                         this.enquiries.push({ id: doc.id, ...doc.data() });
-                    });
-                    this.enquiries.push({
-                        id: doc.id,
-                        ...doc.data(),
-                        callLogs: doc.data().callLogs || [] // Ensure callLogs is always an array
                     });
 
                     // Initialize filtered enquiries
@@ -9989,208 +9776,6 @@ Reply with your convenient time for a test drive.
                 // Show pamphlet selection modal
                 this.showSendPamphletModal(enquiryId);
             }
-            // ==========================================================================
-            // Call Tracking
-            // ==========================================================================
-
-            async showCallLogModal(enquiryId) {
-                const enquiry = this.enquiries.find(e => e.id === enquiryId);
-                if (!enquiry) {
-                    this.showToast('Enquiry not found', 'error');
-                    return;
-                }
-
-                this.currentCallEnquiry = enquiry;
-                this.currentCallLogs = enquiry.callLogs || [];
-
-                document.getElementById('call-customer-name').textContent = enquiry.customerName || 'Unknown';
-                document.getElementById('call-customer-phone').textContent = enquiry.phone || 'N/A';
-                document.getElementById('call-total-count').textContent = this.currentCallLogs.length;
-
-                // Reset form
-                document.getElementById('call-status').value = 'connected';
-                document.getElementById('call-duration').value = '';
-                document.getElementById('call-notes').value = '';
-                document.getElementById('call-followup-date').value = '';
-
-                // Render call timeline
-                this.renderCallTimeline();
-
-                document.getElementById('call-log-modal').classList.add('active');
-            }
-
-            closeCallLogModal() {
-                document.getElementById('call-log-modal').classList.remove('active');
-                this.currentCallEnquiry = null;
-            }
-
-            renderCallTimeline() {
-                const container = document.getElementById('call-timeline');
-                if (!container) return;
-
-                const logs = this.currentCallLogs || [];
-
-                if (logs.length === 0) {
-                    container.innerHTML = '<div class="text-center text-muted py-4">No calls logged yet</div>';
-                    return;
-                }
-
-                // Sort by date (newest first)
-                const sortedLogs = [...logs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-                let html = '';
-                sortedLogs.forEach(log => {
-                    const statusClass = log.status || 'connected';
-                    const statusLabel = log.status || 'Connected';
-                    const timestamp = log.timestamp ? new Date(log.timestamp).toLocaleString() : 'Unknown';
-                    const duration = log.duration ? `${log.duration} min` : 'N/A';
-                    const notes = log.notes || 'No notes';
-
-                    html += `
-            <div class="call-entry ${statusClass}">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
-                    <div>
-                        <strong>${log.callerName || 'Unknown'}</strong>
-                        <span class="call-status-badge call-status-${statusClass}">${statusLabel}</span>
-                    </div>
-                    <div class="call-meta">
-                        <span><i class="fas fa-clock"></i> ${timestamp}</span>
-                        <span><i class="fas fa-hourglass-half"></i> ${duration}</span>
-                    </div>
-                </div>
-                ${notes ? `<div class="call-notes">${notes}</div>` : ''}
-                ${log.followupDate ? `<div class="call-meta" style="margin-top: 0.25rem;"><span><i class="fas fa-calendar"></i> Next Follow-up: ${new Date(log.followupDate).toLocaleDateString()}</span></div>` : ''}
-            </div>
-        `;
-                });
-                container.innerHTML = html;
-            }
-
-            async saveCallLog() {
-                if (!this.currentCallEnquiry) {
-                    this.showToast('No enquiry selected', 'error');
-                    return;
-                }
-
-                const status = document.getElementById('call-status').value;
-                const duration = document.getElementById('call-duration').value;
-                const notes = document.getElementById('call-notes').value.trim();
-                const followupDate = document.getElementById('call-followup-date').value;
-
-                // Validate
-                if (!status) {
-                    this.showToast('Please select a call status', 'error');
-                    return;
-                }
-
-                // Check if duration is valid
-                const durationMin = parseInt(duration) || 0;
-
-                const callLog = {
-                    id: 'call_' + Date.now(),
-                    status: status,
-                    duration: durationMin,
-                    notes: notes,
-                    followupDate: followupDate || null,
-                    callerName: document.getElementById('user-name').textContent,
-                    callerId: this.currentUser?.uid,
-                    timestamp: new Date().toISOString()
-                };
-
-                this.showLoading(true);
-
-                try {
-                    // Update in Firebase
-                    const enquiryRef = window.firebase.doc(window.firebase.db, 'enquiries', this.currentCallEnquiry.id);
-                    const currentLogs = this.currentCallEnquiry.callLogs || [];
-                    const updatedLogs = [...currentLogs, callLog];
-
-                    await window.firebase.updateDoc(enquiryRef, {
-                        callLogs: updatedLogs,
-                        lastCallTimestamp: callLog.timestamp,
-                        lastCallStatus: status,
-                        updatedAt: new Date().toISOString()
-                    });
-
-                    // Update local data
-                    this.currentCallEnquiry.callLogs = updatedLogs;
-                    this.currentCallLogs = updatedLogs;
-
-                    // Update the enquiry in the main list
-                    const mainEnquiry = this.enquiries.find(e => e.id === this.currentCallEnquiry.id);
-                    if (mainEnquiry) {
-                        mainEnquiry.callLogs = updatedLogs;
-                        mainEnquiry.lastCallTimestamp = callLog.timestamp;
-                        mainEnquiry.lastCallStatus = status;
-                    }
-
-                    // If follow-up date is provided, update the enquiry's follow-up
-                    if (followupDate) {
-                        await window.firebase.updateDoc(enquiryRef, {
-                            followupDate: followupDate
-                        });
-                        if (mainEnquiry) mainEnquiry.followupDate = followupDate;
-                        this.currentCallEnquiry.followupDate = followupDate;
-                    }
-
-                    // Refresh the timeline
-                    this.renderCallTimeline();
-                    document.getElementById('call-total-count').textContent = updatedLogs.length;
-
-                    // Reset form
-                    document.getElementById('call-status').value = 'connected';
-                    document.getElementById('call-duration').value = '';
-                    document.getElementById('call-notes').value = '';
-                    document.getElementById('call-followup-date').value = '';
-
-                    this.showToast('Call logged successfully!', 'success');
-
-                    // Update dashboard and tables
-                    this.filterEnquiries();
-                    this.updateDashboard();
-
-                } catch (error) {
-                    console.error('Error saving call log:', error);
-                    this.showToast('Error saving call log: ' + error.message, 'error');
-                } finally {
-                    this.showLoading(false);
-                }
-            }
-
-            // Add call stats to dashboard
-            updateCallStats() {
-                const totalCalls = this.enquiries.reduce((sum, e) => sum + (e.callLogs ? e.callLogs.length : 0), 0);
-                const connectedCalls = this.enquiries.reduce((sum, e) => {
-                    if (e.callLogs) {
-                        return sum + e.callLogs.filter(l => l.status === 'connected').length;
-                    }
-                    return sum;
-                }, 0);
-
-                const badge = document.getElementById('call-stats-badge');
-                if (badge) {
-                    badge.textContent = totalCalls;
-                }
-
-                // Update dashboard card if exists
-                const callStatsEl = document.getElementById('call-stats');
-                if (callStatsEl) {
-                    callStatsEl.innerHTML = `
-            <div class="stat-item">
-                <div style="display: flex; justify-content: space-between;">
-                    <span><i class="fas fa-phone" style="color: var(--success);"></i> Total Calls:</span>
-                    <span><strong>${totalCalls}</strong></span>
-                </div>
-            </div>
-            <div class="stat-item">
-                <div style="display: flex; justify-content: space-between;">
-                    <span><i class="fas fa-check-circle" style="color: var(--success);"></i> Connected:</span>
-                    <span><strong>${connectedCalls}</strong> (${totalCalls > 0 ? Math.round(connectedCalls / totalCalls * 100) : 0}%)</span>
-                </div>
-            </div>
-        `;
-                }
-            }
 
             // ==========================================================================
             // Reports Section - With actual report generation and download
@@ -10828,7 +10413,8 @@ Reply with your convenient time for a test drive.
                     <td>${member.name || ''}</td>
                     <td>${member.email || ''}</td>
                     <td>${member.phone || 'N/A'}</td>
-                    <td>${member.role === 'senior' ? 'Senior Sales Manager' : 'Sales Manager'}</td>
+                    <td>${member.role === 'senior' ? 'Senior Sales Manager' :
+                            member.role === 'salesperson' ? 'Sales Person' : 'Sales Manager'}</td>
                     <td>
                         <button class="btn btn-sm btn-info" onclick="app.viewTeamMemberPassword('${member.uid}', '${member.name}')">
                             <i class="fas fa-eye"></i> View Password
