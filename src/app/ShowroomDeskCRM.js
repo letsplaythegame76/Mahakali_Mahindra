@@ -6633,41 +6633,13 @@ Reply with your convenient time for a test drive.
     this.showLoading(true);
 
     try {
-      // Check if we have owner credentials stored
-      if (!this.ownerCredentials.email || !this.ownerCredentials.password) {
-        // If not stored, try to get from current user
-        if (this.currentUser && this.userRole === "owner") {
-          const ownerPassword = prompt(
-            "For security, please enter your password to continue:",
-          );
-          if (!ownerPassword) {
-            this.showToast("Operation cancelled", "warning");
-            this.showLoading(false);
-            return;
-          }
-
-          this.ownerCredentials = {
-            email: this.currentUser.email,
-            password: ownerPassword,
-          };
-        } else {
-          this.showToast(
-            "Owner credentials not found. Please login again.",
-            "error",
-          );
-          this.showLoading(false);
-          return;
-        }
-      }
-
-      // Store owner email before creating new user
-      const ownerEmail = this.ownerCredentials.email;
-      const ownerPassword = this.ownerCredentials.password;
-
-      // Create Firebase Auth user with manual password
+      // Create Firebase Auth user on the SECONDARY auth instance so this
+      // never touches the owner's active session on window.firebase.auth
+      // (no sign-out, no sign-back-in, no onAuthStateChanged firing for
+      // the owner, and no dashboard reset).
       const userCredential =
         await window.firebase.createUserWithEmailAndPassword(
-          window.firebase.auth,
+          window.firebase.secondaryAuth,
           email,
           password,
         );
@@ -6744,9 +6716,13 @@ Reply with your convenient time for a test drive.
 
       console.log("Saving team member with showroom data:", safeShowroomData);
 
+      // Written via secondaryDb (bound to the secondary auth instance) so
+      // this create happens while the NEW user is the authenticated party
+      // (request.auth.uid === uid), matching your existing Firestore rules
+      // that allow a user to create their own "users/{uid}" document.
       await window.firebase.setDoc(
         window.firebase.doc(
-          window.firebase.db,
+          window.firebase.secondaryDb,
           "users",
           userCredential.user.uid,
         ),
@@ -6755,15 +6731,10 @@ Reply with your convenient time for a test drive.
 
       console.log("Team member created:", userCredential.user.uid);
 
-      // IMPORTANT: Sign out the new user
-      await window.firebase.signOut(window.firebase.auth);
-
-      // Sign back in as the owner using stored credentials
-      await window.firebase.signInWithEmailAndPassword(
-        window.firebase.auth,
-        ownerEmail,
-        ownerPassword,
-      );
+      // Sign the new user out of the SECONDARY auth instance to keep it
+      // clean for the next team member creation. This has no effect on
+      // the owner, who was never signed out of window.firebase.auth.
+      await window.firebase.signOut(window.firebase.secondaryAuth);
 
       this.closeTeamModal();
       this.showToast("Team member added successfully!", "success");
@@ -6773,9 +6744,6 @@ Reply with your convenient time for a test drive.
 
       if (error.code === "auth/email-already-in-use") {
         this.showToast("Email already in use", "error");
-      } else if (error.code === "auth/wrong-password") {
-        this.showToast("Incorrect password. Please try again.", "error");
-        this.ownerCredentials = { email: null, password: null };
       } else if (error.code === "auth/weak-password") {
         this.showToast(
           "Password is too weak. Please choose a stronger password.",
@@ -6791,17 +6759,13 @@ Reply with your convenient time for a test drive.
         this.showToast("Error adding team member: " + error.message, "error");
       }
 
-      // Try to re-authenticate the owner if something went wrong
+      // Clean up: if the user was created on the secondary auth instance
+      // but something failed afterwards, sign it out there. The owner's
+      // session on window.firebase.auth was never touched.
       try {
-        if (this.ownerCredentials.email && this.ownerCredentials.password) {
-          await window.firebase.signInWithEmailAndPassword(
-            window.firebase.auth,
-            this.ownerCredentials.email,
-            this.ownerCredentials.password,
-          );
-        }
+        await window.firebase.signOut(window.firebase.secondaryAuth);
       } catch (e) {
-        console.error("Re-authentication failed:", e);
+        // No-op: secondary instance may not have an active session.
       }
     } finally {
       this.showLoading(false);
@@ -6974,7 +6938,9 @@ Reply with your convenient time for a test drive.
       this.toggleExchangeFields();
       this.toggleBookingFields();
       await this.loadEnquiries();
-      this.switchSection("enquiries");
+      // Stay on the Add Enquiry form so multiple enquiries can be added back-to-back.
+      // (Previously this called this.switchSection("enquiries"), forcing a jump
+      // to the Enquiries tab after every single save.)
     } catch (error) {
       console.error("Error saving enquiry:", error);
       this.showToast("Error saving enquiry: " + error.message, "error");
