@@ -736,6 +736,21 @@ class ShowroomDeskCRM {
       this.blockIfTrialExpired();
       return;
     }
+
+    // Block Team and Reports sections for anyone who is not the owner.
+    // This is enforced here (not just by hiding the nav buttons) so it
+    // can't be bypassed by directly calling switchSection() from the
+    // console, preventing non-owners from viewing other sales staff's
+    // enquiries via Reports, or team details via Team.
+    const ownerOnlySections = ["team", "reports"];
+    if (ownerOnlySections.includes(sectionId) && this.userRole !== "owner") {
+      this.showToast(
+        "This section is only available to the showroom owner.",
+        "error",
+      );
+      sectionId = "dashboard";
+    }
+
     // Update navigation buttons
     document.querySelectorAll(".nav-btn").forEach((btn) => {
       btn.classList.remove("active");
@@ -767,7 +782,7 @@ class ShowroomDeskCRM {
       this.loadInterventions();
     } else if (sectionId === "analytics") {
       this.loadAnalytics();
-    } else if (sectionId === "reports") {
+    } else if (sectionId === "reports" && this.userRole === "owner") {
       // Just show reports UI
     } else if (sectionId === "inventory") {
       this.loadInventory(true);
@@ -787,6 +802,7 @@ class ShowroomDeskCRM {
       this.loadPamphlets();
     }
   }
+
   // ==========================================================================
   // Booking Functions
   // ==========================================================================
@@ -7024,7 +7040,7 @@ Reply with your convenient time for a test drive.
                 `;
 
       alert(
-         "Sales Manager: " + (enquiry.salesManagerName || "Unassigned") + "\n" +
+        'Sales Manager: ' + (enquiry.salesManagerName || 'Unassigned') + '\n' +
         "View enquiry details - " +
           enquiry.customerName +
           "\n\n" +
