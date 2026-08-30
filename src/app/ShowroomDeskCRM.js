@@ -3757,6 +3757,23 @@ Reply with your convenient time for a test drive.
     });
   }
 
+  // Maps a raw Firestore "role" value to the label shown in the UI
+  // (header, Team table, etc). Covers all four roles: owner, senior sales
+  // manager, sales manager (default), and sales person.
+  getRoleDisplayLabel(role) {
+    switch (role) {
+      case "owner":
+        return "Owner";
+      case "senior":
+        return "Senior Sales Manager";
+      case "salesperson":
+        return "Sales Person";
+      case "sales":
+      default:
+        return "Sales Manager";
+    }
+  }
+
   // In your main app (showroomdesk.in) - UPDATE THIS FUNCTION
   async loadUserData(user) {
     try {
@@ -3840,12 +3857,24 @@ Reply with your convenient time for a test drive.
         }
 
         // Update UI with user data
-        document.getElementById("user-name").textContent =
-          userData.name || user.email.split("@")[0];
+        const displayName = userData.name || user.email.split("@")[0];
+        document.getElementById("user-name").textContent = displayName;
         document.getElementById("user-role").textContent =
-          this.userRole === "owner" ? "Owner" : "Sales Manager";
+          this.getRoleDisplayLabel(this.userRole);
         document.getElementById("header-showroom-name").textContent =
           this.showroomData.name;
+
+        // Show "<Role Name> - <Person Name>" directly under the showroom
+        // name in the header logo area (e.g. "Owner - Arif", "Sales
+        // Manager - Priya"), based on the currently logged-in session.
+        const headerUserRoleNameEl = document.getElementById(
+          "header-user-role-name",
+        );
+        if (headerUserRoleNameEl) {
+          headerUserRoleNameEl.textContent =
+            `${this.getRoleDisplayLabel(this.userRole)} - ${displayName}`;
+        }
+
 
         // Set role class on body
         document.body.classList.add(`role-${this.userRole}`);
@@ -6470,13 +6499,7 @@ Reply with your convenient time for a test drive.
                     <td>${member.name || ""}</td>
                     <td>${member.email || ""}</td>
                     <td>${member.phone || "N/A"}</td>
-                    <td>${
-                      member.role === "senior"
-                        ? "Senior Sales Manager"
-                        : member.role === "salesperson"
-                          ? "Sales Person"
-                          : "Sales Manager"
-                    }</td>
+                    <td>${this.getRoleDisplayLabel(member.role)}</td>
                     <td>
                         <button class="btn btn-sm btn-info" onclick="app.viewTeamMemberPassword('${member.uid}', '${member.name}')">
                             <i class="fas fa-eye"></i> View Password
@@ -7001,6 +7024,7 @@ Reply with your convenient time for a test drive.
                 `;
 
       alert(
+         "Sales Manager: " + (enquiry.salesManagerName || "Unassigned") + "\n" +
         "View enquiry details - " +
           enquiry.customerName +
           "\n\n" +
