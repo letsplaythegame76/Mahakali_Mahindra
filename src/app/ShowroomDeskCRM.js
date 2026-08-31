@@ -7047,6 +7047,7 @@ Reply with your convenient time for a test drive.
           "Phone: " +
           enquiry.phone +
           "\n" +
+          'Created: ' + (enquiry.createdAt ? new Date(enquiry.createdAt).toLocaleString() : 'Unknown') + '\n' +
           "Source: " +
           (enquiry.source || "N/A") +
           "\n" +
